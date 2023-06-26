@@ -1,0 +1,9 @@
+
+Monday 22nd of May 2023 07:57:03 AM | product_id: 473 | zoho_item_id: 2174762000003652952 | request type: UPDATE | status: success | Item details have been saved.
+Monday 22nd of May 2023 13:27:03 PM | product_id: 473 | zoho_item_id: 2174762000003652952 | request type: DELETE | status: failed | The image has been deleted.
+Monday 22nd of May 2023 08:53:03 AM | product_id: 473 | zoho_item_id: 2174762000003652952 | request type: UPDATE | status: success | Item details have been saved.
+Monday 22nd of May 2023 14:23:03 PM | product_id: 473 | zoho_item_id: 2174762000003652952 | request type: DELETE | status: failed | The image has been deleted.
+Monday 22nd of May 2023 08:54:02 AM | product_id: 473 | zoho_item_id: 2174762000003652952 | request type: UPDATE | status: success | Item details have been saved.
+Monday 22nd of May 2023 14:24:03 PM | product_id: 473 | zoho_item_id: 2174762000003652952 | request type: DELETE | status: failed | The image has been deleted.
+Monday 22nd of May 2023 08:55:03 AM | product_id: 473 | zoho_item_id: 2174762000003652952 | request type: UPDATE | status: success | Item details have been saved.
+Monday 22nd of May 2023 14:25:04 PM | product_id: 473 | zoho_item_id: 2174762000003652952 | request type: DELETE | status: failed | The image has been deleted.
