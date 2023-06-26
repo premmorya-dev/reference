@@ -1,0 +1,273 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" data-toggle="tooltip" title="{{ button_filter }}" onclick="$('#filter-product').toggleClass('hidden-sm hidden-xs');" class="btn btn-default hidden-md hidden-lg"><i class="fa fa-filter"></i></button>
+
+        <a href="{{ add }}"  class="btn btn-primary"><i class="fa fa-plus"></i> Add Transaction</a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li>
+            <a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if success %}
+      <div class="alert alert-success alert-dismissible">
+        <i class="fa fa-check-circle"></i> {{ success }}
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+    {% endif %}
+    <div class="row">
+      <div id="filter-product" class="col-sm-12 hidden-sm hidden-xs">
+        <div class="panel panel-default">
+          <div class="panel-heading adwcsh">
+            <h3 class="panel-title"><i class="fa fa-filter"></i> {{ text_filter }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group col-sm-4 adwcs">
+              <label class="control-label" for="input-name">{{ column_order_id }}</label>
+              <input type="number" name="filter_order_id" value="{{ filter_order_id }}" placeholder="{{ entry_name }}" id="input-name" class="form-control" />
+            </div>
+
+            <div class="form-group col-sm-4 adwcs">
+              <label class="control-label" for="input-name">{{ column_customer_email }}</label>
+              <input type="text" name="filter_email" value="{{ filter_email }}" placeholder="{{ entry_name }}" id="input-name" class="form-control" />
+            </div>
+
+            <div class="form-group col-sm-4 adwcs">
+              <label class="control-label" for="input-name">{{ column_customer_tel }}</label>
+              <input type="number" name="filter_customer_tel" value="{{ filter_customer_tel }}" placeholder="{{ entry_name }}" id="input-name" class="form-control" />
+            </div>
+
+            <div class="form-group col-sm-4 adwcs">
+              <label class="control-label" for="input-name">{{ column_order_total }}</label>
+              <input type="number" name="filter_order_total" value="{{ filter_order_total }}" placeholder="{{ entry_name }}" id="input-name" class="form-control" />
+            </div>
+
+            <div class="form-group col-sm-4 adwcs">
+              <label class="control-label" for="input-name">{{ column_payment_status }}</label>
+              <select name="filter_payment_status" id="method" class="form-control method">
+                <option value=""></option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed</option>
+              </select>
+            </div>
+
+            <div class="form-group col-sm-4 adwcs">
+              <label class="control-label" for="input-name">{{ column_payment_processor }}</label>
+
+              <select name="filter_payment_processor" id="filter_payment_processor" class="form-control method">
+                <option value=""></option>
+                <option value="razorpay">Razorpay</option>
+                <option value="neft">Bank</option>
+                <option value="payu">PayU</option>
+              </select>
+            </div>
+
+            <div class="text-right">
+              <button type="button" id="button-filter" class="btn btn-default"><i class="fa fa-filter"></i> {{ button_filter }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
+          </div>
+          <div class="panel-body">
+            <form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form-product">
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <td style="width: 1px;" class="text-center">
+                        <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" />
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_order_id }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_order_date }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_customer_email }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_customer_tel }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_order_total }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_payment_amount }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_payment_date }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_payment_status }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_payment_processor }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_ledger_id }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_transaction_id }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_transaction_log_id }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_payment_ref_no }}</a>
+                      </td>
+
+                      {# <td class="text-right">{{ column_action }}</td> #}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% if all_orders_payments %}
+                      {% for all_orders_payment in all_orders_payments %}
+                        <tr>
+                         
+
+                          <td class="text-left">{{ all_orders_payment.order_id }}</td>
+                          <td class="text-left">{{ all_orders_payment.order_date }}</td>
+                          <td class="text-left">{{ all_orders_payment.email }}</td>
+                          <td class="text-left">{{ all_orders_payment.telephone }}</td>
+                          <td class="text-left">{{ all_orders_payment.total }}</td>
+                          <td class="text-left">{{ all_orders_payment.amount }}</td>
+                          <td class="text-left">{{ all_orders_payment.payment.payment_date }}</td>
+                          <td class="text-center">
+                            {% if all_orders_payment.payment.status == '1' %}
+                              <h5><span class="label label-success">Captured</span></h5>
+                            {% else %}
+                              <h5><span class="label label-danger">Failed</span></h5>
+                            {% endif %}
+                          </td>
+                          <td class="text-left">{{ all_orders_payment.processor_type }}</td>
+                          <td class="text-left">{{ all_orders_payment.ledger_id }}</td>
+                          <td class="text-left">{{ all_orders_payment.transaction_id }}</td>
+                          <td class="text-left">{{ all_orders_payment.transaction_log_id }}</td>
+                          <td class="text-left">{{ all_orders_payment.payment.ref_no }}</td>
+
+                          {# <td class="text-right">
+                            <a href="{{ all_payment.edit }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary"><i class="fa fa-pencil"></i></a>
+                          </td> #}
+                        </tr>
+                      {% endfor %}
+                    {% else %}
+                      <tr>
+                        <td class="text-center" colspan="8">{{ text_no_results }}</td>
+                      </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+            </form>
+            <div class="row">
+              <div class="col-sm-6 text-left">{{ pagination }}</div>
+              <div class="col-sm-6 text-right">{{ results }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript"><!--
+$('#button-filter').on('click', function() {
+	var url = '';
+
+	var filter_order_id = $('input[name=\'filter_order_id\']').val();
+
+	if (filter_order_id) {
+		url += '&filter_order_id=' + encodeURIComponent(filter_order_id);
+	}
+
+	var filter_email = $('input[name=\'filter_email\']').val();
+
+	if (filter_email !== '') {
+		url += '&filter_email=' + encodeURIComponent(filter_email);
+	}
+
+
+	var filter_customer_tel = $('input[name=\'filter_customer_tel\']').val();
+
+	if (filter_customer_tel !== '') {
+		url += '&filter_customer_tel=' + encodeURIComponent(filter_customer_tel);
+	}
+
+  	var filter_order_total = $('input[name=\'filter_order_total\']').val();
+
+	if (filter_order_total !== '') {
+		url += '&filter_order_total=' + encodeURIComponent(filter_order_total);
+	}
+
+
+	var filter_payment_status = $('select[name=\'filter_payment_status\']').val();
+
+	if (filter_payment_status !== '') {
+		url += '&filter_payment_status=' + encodeURIComponent(filter_payment_status);
+	}
+
+	var filter_payment_processor = $('select[name=\'filter_payment_processor\']').val();
+
+	if (filter_payment_processor !== '') {
+		url += '&filter_payment_processor=' + encodeURIComponent(filter_payment_processor);
+	}
+
+
+	location = 'index.php?route=ledger/order&user_token={{ user_token }}' + url;
+});
+//--></script>
+  <script type="text/javascript"><!--
+
+
+
+
+  $('input[name=\'filter_email\']').autocomplete({
+    'source': function(request, response) {
+      $.ajax({
+        url: 'index.php?route=customer/customer/autocomplete&user_token={{ user_token }}&filter_email=' +  encodeURIComponent(request),
+        dataType: 'json',
+        success: function(json) {
+          response($.map(json, function(item) {
+            return {
+              label: item['email'],
+              value: item['customer_id']
+            }
+          }));
+        }
+      });
+    },
+    'select': function(item) {
+      $('input[name=\'filter_email\']').val(item['label']);
+    }
+  });
+
+//--></script>
+</div>
+{{ footer }}

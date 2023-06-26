@@ -1,0 +1,197 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a data-toggle="tooltip" title="{{ button_add }}" id="save" class="btn btn-primary"><i class="fa fa-save"></i> Save</a>
+        <a data-toggle="tooltip" title="{{ button_add }}" id="addDebitTransaction" class="btn btn-primary"><i class="fa fa-plus"></i> Add Debit Transaction</a>
+        {# <button type="button" data-toggle="modal" data-target="#addtransaction" class="btn btn-primary"><i class="fa fa-pencil"></i> Edit Transaction</button> #}
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="alert alert-danger alert-dismissible" style="display:none;" id="error-message" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+      <strong>Warning!</strong> Debit total amount and credit total amount miss-match
+    </div>
+
+    <div class="row">
+      <div class="transaction-form container-fluid">
+        <div class="transaction-heading">
+          <center>
+            <h1>Transaction Ledger</h1>
+          </center>
+
+          <div class="payment-detail">
+            <div class="row">{{ credit_transactions.payment_html }}</div>
+          </div>
+        </div>
+
+        <div class="transaction-body">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Ledger Id</th>
+                <th>Description</th>
+                <th>Debit</th>
+                <th>Credit</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if credit_transactions %}
+                <tr>
+                  <td class="ledger_id" ledgerId="{{ credit_transactions.ledger_id }}">{{ credit_transactions.ledger_id }}</td>
+                  <td>{{ credit_transactions.description }}</td>
+                  <td></td>
+                  <td>{{ credit_transactions.amount }}</td>
+                </tr>
+              {% endif %}
+              {% if debit_transactions %}
+                {% for debit_transaction in debit_transactions %}
+                  <tr class="ledger-row">
+                    <td class="ledger_id" ledgerId="{{ debit_transaction.ledger_id }}">{{ debit_transaction.ledger_id }}</td>
+
+                    {% if debit_transaction.order_id %}
+                      <td class="description">{{ debit_transaction.description }}</td>
+                      <td class="amount">{{ debit_transaction.amount }}</td>
+                    {% else %}
+                      <td contenteditable class="description">
+                        {{ debit_transaction.description }} <i class="fa fa-pencil" style="float: right;    margin-top: 5px;color: #2e78eb;"></i>
+                      </td>
+
+                      <td contenteditable class="amount">
+                        {{ debit_transaction.amount }}
+
+                        <i class="fa fa-trash delete" id="i_ledger_id" ledgerid="{{ debit_transaction.ledger_id }}" style="float: right;    margin-top: 5px;color: red;margin-left: 5px;"></i>
+
+                        <i class="fa fa-pencil" style="float: right; margin-top: 5px;color: #2e78eb; margin-left: 5px;"></i>
+                      </td>
+                    {% endif %}
+
+                    <td></td>
+                  </tr>
+                {% endfor %}
+              {% endif %}
+
+              {# total section #}
+
+              <tr>
+                <td colspan="2">
+                  <div style="margin-left:50%">Total</div>
+                </td>
+                <td>{{ debit_transactions_total }}</td>
+                <td>{{ credit_transactions.amount }}</td>
+              </tr>
+              <input type="hidden" name="transaction_id" id="tx_id" value="{{ credit_transactions.transaction_id }}" />
+              <input type="hidden" name="credit_amount" id="credit_amount" value="{{ credit_transactions.amount }}" />
+              {# total section #}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .transaction-form {
+    background-color: white;
+  }
+  .transaction-heading {
+    padding: 20px;
+  }
+  .transactions {
+    display: flex;
+    flex-direction: row;
+  }
+</style>
+
+<script>
+  $(document).ready(function () {
+    $('#save').click(function (e) {
+      var ledger = Array()
+      var ledger_row = Array()
+      var total = 0
+      $('.ledger-row').each(function (i, obj) {
+        ledger_row = {
+          transaction_id: $('#tx_id').val(),
+          ledger_id: obj.querySelector('.ledger_id').innerText,
+          amount: obj.querySelector('.amount').innerText,
+          description: obj.querySelector('.description').innerText
+        }
+        total = total + parseInt(obj.querySelector('.amount').innerText)
+        //  console.log(ledger_row);
+        ledger[i] = ledger_row
+      })
+  
+      // console.log(  JSON.stringify(ledger)   )
+  
+      if (confirm('Are you sure to update this transaction') == true) {
+        $.ajax({
+          url: 'index.php?route=ledger/ledger/updateTransaction&user_token={{ user_token }}',
+          method: 'POST',
+          data: { ledger: JSON.stringify(ledger), credit_amount: $('#credit_amount').val(), debit_total: total },
+          dataType: 'json',
+          beforeSend(xhr) {
+            $('#loader').show()
+          },
+          success: function (result) {
+            if (result.error == 1) {
+              $('#error-message').show()
+            } else {
+              $('#error-message').hide()
+              alert(result.message)
+              location.reload()
+            }
+          }
+        })
+      }
+    })
+  })
+  
+  $('.delete').click(function (e) {
+    var ledger_id = this.getAttribute('ledgerid')
+  
+    if (confirm('Are you sure to delete this debit transaction') == true) {
+      $.ajax({
+        url: 'index.php?route=ledger/ledger/deleteTransaction&user_token={{ user_token }}',
+        method: 'POST',
+        data: { ledger_id: ledger_id },
+        dataType: 'json',
+        beforeSend(xhr) {
+          $('#loader').show()
+        },
+        success: function (result) {
+          if (result.message) {
+            alert(result.message)
+            location.reload()
+          }
+        }
+      })
+    }
+  })
+  
+  $('#addDebitTransaction').click(function (e) {
+    var count = 0
+    $('.ledger-row').each(function (i, obj) {
+      count++
+    })
+  
+    var html = ''
+  
+    html = `<tr class="ledger-row">
+                                  <td class="ledger_id" ledgerId=""></td>
+              
+                                    <td contenteditable class="description" style="border: 2px solid #9ff190;"></td>
+                                    <td contenteditable class="amount" style="border: 2px solid #9ff190;"></td>
+                                
+                                  <td></td>
+                                </tr>`
+  
+    $(html).insertAfter($('.ledger-row')[count - 1])
+    // document.querySelectorAll('.ledger-row')[count-1].after(html);
+    //$('.ledger-row').parent().append(html);
+  })
+</script>
+
+{{ footer }}

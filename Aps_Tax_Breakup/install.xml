@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+	<name><![CDATA[<font color="#0088CC"><b>Aps Tax Breakup</b></font>]]></name>
+	<code>aps_tax_breakup</code>
+	<version>3.x.x</version>
+	<author><![CDATA[<font color="#0088CC"><b>apsinno.com  ( Prem Morya )</b></font>]]></author>
+	<link><![CDATA[https://apsinno.com/]]></link>	
+  
+	<file path="catalog/controller/journal3/price.php">
+           <operation>
+			<search><![CDATA[
+         $data['tax'] = $this->language->get('text_tax') . ' ' . $this->currency->format($tax, $this->session->data['currency']);
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+	// aps@prem
+	if ($this->config->get('module_aps_tax_breakup_status')) {
+					if ($this->config->get('module_aps_tax_breakup_tax_value') == 'amount') {
+						$tax_value = $this->tax->getTax($product_info['price'], $product_info['tax_class_id']) * $quantity;
+						$data['tax'] = $this->currency->format($tax, $this->session->data['currency']) . ' ( + ' . $tax_value . ' Gst Extra ) ';
+					}
+
+					if ($this->config->get('module_aps_tax_breakup_tax_value') == 'percentage') {
+						$tax_model = $this->tax->getRates($product_info['price'], $product_info['tax_class_id']);
+
+						$tax_rate = 0;
+
+						foreach ($tax_model as $k => $v) {
+							$tax_rate += $v['rate'];
+						}
+						$tax_value = number_format($tax_rate, 2) ;
+						$data['tax'] = '<span>(inc GST)</span>' .'<br>'.'<span style="padding-top: 10px;">'. $this->currency->format($tax, $this->session->data['currency']) . ' ( + ' . $tax_value . '% Gst Extra )' .'</span>';
+					}
+
+				}
+    // aps@prem		
+			]]></add>
+		</operation>
+
+
+		
+					
+	</file>	
+
+</modification>
+

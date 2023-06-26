@@ -1,0 +1,83 @@
+<style>
+.tbl-style{
+    border: 1px solid #ddd;
+    margin: auto;
+    margin-top: 30px;
+    width:80% !important;
+    
+}
+</style>
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ back }}" data-toggle="tooltip" title="Back" class="btn btn-primary">Back</a>
+       
+       
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+<table class="table table-striped mt-3 tbl-style">
+  <tr>
+    <td>Transaction Id</td> <td>{{ payment.razarpay_payment_id }}</td>
+  </tr>
+  <tr>
+    <td>Amount</td> <td>{{ payment.amount }}</td>
+  </tr>
+
+  <tr>
+    <td>Status</td> <td>
+      {% if payment.captured == '1' %}
+        <h5  style="margin-top: 5px;" ><span class="label label-success">Captured</span></h5>
+      {% else %}
+        <h5  style="margin-top: 5px;"><span class="label label-danger">Failed</span></h5>
+      {% endif %}
+    </td>
+  </tr>
+
+  <tr>
+    <td>Refunds</td> 
+    <td>
+      {% if payment.refund_status is not null  %}
+        No refunds issued yet
+      {% endif %}
+    </td>
+  </tr>
+  <tr>
+    <td>Payment Method</td> <td>{{ payment.method }}</td>
+  </tr>
+
+  <tr>
+    <td>Created At</td> <td>{{ payment.created_at }}</td>
+  </tr>
+
+
+  <tr>
+    <td>Description</td> <td>{{ payment.description }}</td>
+  </tr>
+  <tr>
+    <td>Customer</td> <td>{{ payment.email }}</td>
+  </tr>
+
+
+  <tr>
+    <td>Order ID</td> <td>{{ payment.order_id }}</td>
+  </tr>
+
+  <tr>
+    <td>Notes</td> <td>{{ payment.notes }}</td>
+  </tr>
+</table>
+
+
+
+</div>
+{{ footer }} 

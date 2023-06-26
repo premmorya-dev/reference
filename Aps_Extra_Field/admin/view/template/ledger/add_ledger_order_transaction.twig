@@ -1,0 +1,179 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        
+       
+        <button type="button" id="update-ledger" class="btn btn-primary"><i class="fa fa-save"></i> Update</button>
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="alert alert-danger alert-dismissible" style="display:none;" id="error-message" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+      <strong>Warning!</strong> Debit total amount and credit total amount miss-match
+    </div>
+
+     <div id="success-message"></div>
+
+        <div class="transaction-body">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Customer Email</th>
+                <th>Customer Orders</th>
+              </tr>
+            </thead>
+            <tbody>
+                    <tr>
+                         <td><input type="text" name="filter_email" id="filter_email" class="form-control" autocomplete="off">
+                         </td>
+                         <td>  
+                          <select name="order_amount" onchange ="orderChange()" id="order_amount" class="form-control" >
+                          </td>
+                        
+                    </tr>        
+
+                     <tr class="unsettled-transaction" style="display:none;">
+                         <td colspan="2"><center><h2>Unsettled Transactions</h2></center></td>
+                        
+                    </tr>    
+
+
+                       {# <tr class="unsettled-transaction">
+                         <td colspan="2">
+                              <input type="checkbox" id="ledger_id_1" name="ledger_id_1" value="Bike">
+                              <label for="ledger_id_1"> I have a bike</label><br>
+                                <input type="checkbox" id="ledger_id_1" name="ledger_id_1" value="Bike">
+                              <label for="ledger_id_1"> I have a bike</label><br>
+                         </td> #}
+                        
+                    </tr>   
+                     <input type="hidden" name="customer_id" id="customer_id"> 
+            </tbody>
+
+
+            
+          </table>
+
+<div id="unstteled-transaction"></div>
+
+
+          
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $('input[name=\'filter_email\']').autocomplete({ 
+    'source': function(request, response) {
+      $.ajax({
+        url: 'index.php?route=customer/customer/autocomplete&user_token={{ user_token }}&filter_email=' +  encodeURIComponent(request),
+        dataType: 'json',
+        success: function(json) {
+          response($.map(json, function(item) {
+            return {
+              label: item['email'],
+              value: item['customer_id']
+            }
+          }));
+        }
+      });
+    },
+    'select': function(item) {
+      $('input[name=\'filter_email\']').val(item['label']);
+      $('input[name=\'customer_id\']').val(item['value']);
+      $('input[name=\'email\']').val(item['label']);
+
+        $.ajax({
+        url: 'index.php?route=ledger/order/orderList&user_token={{ user_token }}&email=' +  encodeURIComponent( $('#filter_email').val() ),       
+        dataType:'json',
+        processData: false,
+        contentType: false,
+        type:'post',
+        beforeSend(xhr){
+          var container =  document.getElementById("order_amount");
+          while (container.firstChild) {
+              container.removeChild(container.firstChild);
+            }
+ 
+        },
+        success: function(result){
+                           console.log(result); 
+                          
+                            $('#order_amount').append(result.order_amount);
+                           
+                  }
+          });
+
+
+    }
+  });
+
+function orderChange(){
+
+   $.ajax({
+        url: 'index.php?route=ledger/order/unsettledTransaction&user_token={{ user_token }}&customer_id=' +  encodeURIComponent( $('#customer_id').val() ),       
+        dataType:'html',
+        processData: false,
+        contentType: false,
+        type:'post',
+        beforeSend(xhr){
+          $('#unstteled-transaction').html('');
+        
+        },
+        success: function(result){
+                           console.log(result); 
+                          
+                            $('.unsettled-transaction').show(result);
+                            $('#unstteled-transaction').append(result);
+                  }
+          });
+
+
+}
+
+
+
+$('#update-ledger').on('click', function() {
+  var order_id = $("#order_amount").find(':selected').val();
+  var ledger_id = [];
+  document.querySelectorAll(".selected").forEach(function(value,index){
+    if(value.checked==true){
+        ledger_id.push(value.value);
+
+    }
+ });
+ 
+  if(confirm('Are you sure to add this transaction') == true){
+  
+        $.ajax({
+            url: 'index.php?route=ledger/order/updateLedger&user_token={{ user_token }}',   
+           
+            data: { ledger_id:ledger_id,order_id,order_id },   
+            dataType:'json',            
+            type:'post',
+            beforeSend(xhr){
+             
+     
+            },
+            success: function(result){
+               
+                              console.log(result.message); 
+                              $('#success-message').html(result.message);
+                              
+                      }
+              });
+         }
+});
+
+
+
+</script>
+
+
+{{ footer }}

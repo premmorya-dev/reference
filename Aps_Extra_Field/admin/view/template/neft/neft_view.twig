@@ -1,0 +1,107 @@
+<style>
+  .tbl-style {
+    border: 1px solid #ddd;
+    margin: auto;
+    margin-top: 30px;
+    width: 80% !important;
+  }
+</style>
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ back }}" data-toggle="tooltip" title="Back" class="btn btn-primary">Back</a>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li>
+            <a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <table class="table table-striped mt-3 tbl-style">
+    <tr>
+      <td>Transaction Id</td> <td>{{ payment.transaction_log_id }}</td>
+    </tr>
+
+    <tr>
+      <td>Bank Account Number</td> <td>{{ payment.bank_account_no }}</td>
+    </tr>
+
+     <tr>
+      <td>Payment Method</td> <td>{{ payment.method }}</td>
+    </tr>
+
+    <tr>
+      <td>Currency</td> <td>{{ payment.currency }}</td>
+    </tr>
+
+     <tr>
+      <td>Customer Id</td> <td>{{ payment.customer_id }}</td>
+    </tr>
+
+    <tr>
+      <td>Email</td> <td>{{ payment.email }}</td>
+    </tr>
+
+     <tr>
+      <td>Transaction Reference Id</td> <td>{{ payment.transaction_reference_id }}</td>
+    </tr>
+
+    <tr>
+      <td>Transaction Naration</td> <td>{{ payment.transaction_naration }}</td>
+    </tr>
+
+     <tr>
+      <td>Transaction Date</td> <td>{{ payment.transaction_date }}</td>
+    </tr>
+
+    <tr>
+      <td>Comment</td> <td>{{ payment.comment }}</td>
+    </tr>
+
+     <tr>
+      <td>Date Added</td> <td>{{ payment.date_added }}</td>
+    </tr>
+
+    <tr>
+      <td>Date Modified</td> <td>{{ payment.date_modified }}</td>
+    </tr>
+
+    <tr>
+      <td>Transaction Id</td> <td>{{ payment.transaction_id }}</td>
+    </tr>
+
+     
+     <tr>
+      <td>Ledger Id</td> <td>{{ payment.ledger_id ? payment.ledger_id : 'N/A'}}</td>
+    </tr>
+
+     <tr>
+      <td>Transaction Type</td> <td>{{ payment.transaction_type }}</td>
+    </tr>
+
+     <tr>
+      <td>Amount</td> <td>{{ payment.amount }}</td>
+    </tr>
+
+     <tr>
+      <td>Description</td> <td>{{ payment.description }}</td>
+    </tr>
+
+     <tr>
+      <td>Order Id</td> <td>{{ payment.order_id ? payment.order_id  : 'N/A'}}</td>
+    </tr>
+
+
+
+
+   
+  </table>
+</div>
+{{ footer }}

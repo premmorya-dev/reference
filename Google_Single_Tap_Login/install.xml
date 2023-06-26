@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+	<name><![CDATA[<font color="#65ad24">APS Google Single Tap Login</font>]]></name>
+	<code>googlelogin</code>
+	<version>3.x.x</version>
+	<author><![CDATA[<font color="#0088CC"><b>APS innovations Pvt Ltd (Prem Morya)</b></font>]]></author>
+	<link><![CDATA[https://apsinno.com/]]></link>	
+  
+	<file path="catalog/view/theme/journal3/template/common/header.twig">
+		
+
+
+           <operation>
+			<search><![CDATA[
+         <link rel="preconnect" href="https://fonts.googleapis.com/" crossorigin>
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+{# aps@prem #}
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>  
+<script>
+
+var customer_isLogged = '{{ customer_isLogged }}'; 
+var login_popup = false;
+if(window.location.search == '?route=account/login&popup=login' ){
+ login_popup = true;
+}else{
+  login_popup = false;
+}
+console.log(window.location.search);
+if(customer_isLogged == 'false' && login_popup == false){
+  document.cookie = "g_state={'i_l':0}; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+ googleLogin();
+}
+  function googleLogin(){
+
+ window.onGoogleLibraryLoad = () => {
+      google.accounts.id.initialize({
+        client_id: '{{ client_id }}',
+        cancel_on_tap_outside: false,
+        callback: onOneTapSignedIn,
+        prompt_parent_id: "root",
+        //intermediate_iframe_close_callback : close_callback1
+      });
+      google.accounts.id.prompt((notification) => {
+        //    document.cookie =  `g_state=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT`;
+        if (notification.isNotDisplayed()) {
+          console.log(notification.getNotDisplayedReason());
+        } else if (notification.isSkippedMoment()) {
+          console.log(notification.getSkippedReason());
+        } else if (notification.isDismissedMoment()) {
+          console.log(notification.getDismissedReason());
+        } else {
+
+        }
+      });
+    }
+
+
+
+
+    function onOneTapSignedIn(response) {
+       var google_login = '{{ aps_google_login }}';
+      if (response.credential) {
+        //  console.log(response);
+        var parseJwt = parseJwt(response.credential)
+
+
+        $.ajax({
+          url: google_login,
+          type: 'POST',
+          data: { response: parseJwt },
+          dataType: 'json',
+          beforeSend: function () {
+            // $('#button-commission-remove').button('loading');
+          },
+          complete: function () {
+            // $('#button-commission-remove').button('reset');
+          },
+          success: function (json) {
+           window.location.href = '{{ home }}';
+          },
+
+        });
+
+      }
+
+
+      function parseJwt(token) {
+        var base64url = JSON.parse(atob(token.split('.')[1]));
+        console.log(base64url);
+        return base64url;
+      }
+
+    }
+  }
+  </script>
+{# aps@prem #}	
+			]]></add>
+		</operation>
+
+					
+	</file>	
+
+
+  
+	<file path="catalog/controller/common/header.php">
+		
+
+
+    <operation>
+			<search><![CDATA[
+        return $this->load->view('common/header', $data);
+            ]]></search>
+			<add position="before"><![CDATA[
+	if($this->customer->isLogged()){
+			$data['customer_isLogged'] = 'true';
+		}else{
+			$data['customer_isLogged'] = 'false';
+		}
+		
+		$data['aps_google_login'] = $this->url->link('aps_google_login/aps_google_login', '', true);	
+		$data['client_id'] = $this->config->get('module_aps_google_login_client_id');
+			]]></add>
+		</operation>
+
+
+
+
+					
+	</file>	
+
+
+
+
+</modification>

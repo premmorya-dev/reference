@@ -1,0 +1,647 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="button" data-toggle="tooltip" title="{{ button_filter }}" onclick="$('#filter-product').toggleClass('hidden-sm hidden-xs');" class="btn btn-default hidden-md hidden-lg"><i class="fa fa-filter"></i></button>
+
+        <button type="button" data-toggle="modal" data-target="#addtransaction" class="addTransaction btn btn-primary"><i class="fa fa-plus"></i> Add Transaction</button>
+      </div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+          <li>
+            <a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div id="filter-product" class="col-sm-12 hidden-sm hidden-xs">
+        <div class="panel panel-default">
+          <div class="panel-heading adwcsh">
+            <h3 class="panel-title"><i class="fa fa-filter"></i> {{ text_filter }}</h3>
+          </div>
+          <div class="panel-body">
+            <div class="form-group col-sm-4 adwcs">
+              <label class="control-label" for="bank_account_no">{{ column_bank_account_no }}</label>
+              <select name="bank_account_no" id="bank_account_no" class="form-control">
+                <option value=""></option>
+
+                {% if bank_account_no == '1234567890' %}
+                  <option value="1234567890" selected="selected">1234567890</option>
+                {% else %}
+                  <option value="1234567890">1234567890</option>
+                {% endif %}
+                {% if bank_account_no == '0987654321' %}
+                  <option value="0987654321" selected="selected">0987654321</option>
+                {% else %}
+                  <option value="0987654321">0987654321</option>
+                {% endif %}
+              </select>
+            </div>
+
+            <div class="form-group col-sm-4 adwcs">
+              <label class="control-label" for="bank_account_no">{{ column_method }}</label>
+              <select name="method" id="method" class="form-control">
+                <option value=""></option>
+
+                {% if method == 'NEFT' %}
+                  <option value="NEFT" selected="selected">NEFT</option>
+                {% else %}
+                  <option value="NEFT">NEFT</option>
+                {% endif %}
+                {% if method == 'UPI' %}
+                  <option value="UPI" selected="selected">UPI</option>
+                {% else %}
+                  <option value="UPI">UPI</option>
+                {% endif %}
+                {% if method == 'RTGS' %}
+                  <option value="RTGS" selected="selected">RTGS</option>
+                {% else %}
+                  <option value="RTGS">RTGS</option>
+                {% endif %}
+                {% if method == 'IMPS' %}
+                  <option value="IMPS" selected="selected">IMPS</option>
+                {% else %}
+                  <option value="IMPS">IMPS</option>
+                {% endif %}
+                {% if method == 'Cash-Desposite' %}
+                  <option value="Cash-Desposite" selected="selected">Cash-Desposite</option>
+                {% else %}
+                  <option value="Cash-Desposite">Cash-Desposite</option>
+                {% endif %}
+                {% if method == 'SWIFT' %}
+                  <option value="SWIFT" selected="selected">SWIFT</option>
+                {% else %}
+                  <option value="SWIFT">SWIFT</option>
+                {% endif %}
+                {% if method == 'DD' %}
+                  <option value="DD" selected="selected">DD</option>
+                {% else %}
+                  <option value="DD">DD</option>
+                {% endif %}
+                {% if method == 'CHEQUE' %}
+                  <option value="CHEQUE" selected="selected">CHEQUE</option>
+                {% else %}
+                  <option value="CHEQUE">CHEQUE</option>
+                {% endif %}
+              </select>
+            </div>
+
+            <div class="form-group col-sm-4 adwcs">
+              <label class="control-label" for="input-status">{{ column_email }}</label>
+              <input type="text" name="fill_email" value="{{ fill_email }}" placeholder="Customer Email" id="customer_id" class="form-control" />
+            </div>
+
+            <div class="form-group col-sm-4 adwcs">
+              <label class="control-label" for="input-name">{{ column_transaction_reference_id }}</label>
+              <input type="text" name="transaction_reference_id" value="{{ transaction_reference_id }}" placeholder="Transaction Reference Id" id="transaction_reference_id" class="form-control" />
+            </div>
+
+            <div class="form-group col-sm-4 adwcs">
+              <label class="control-label" for="input-name">{{ column_transaction_date }}</label>
+              <input type="date" name="transaction_date" value="{{ transaction_date }}" placeholder="" id="transaction_date" class="form-control" />
+            </div>
+
+            <div class="form-group col-sm-4 adwcs">
+              <label class="control-label" for="input-status">{{ column_currency }}</label>
+              <select name="currency" id="currency" class="form-control">
+                <option value=""></option>
+
+                {% if currency == 'INR' %}
+                  <option value="INR" selected="selected">INR</option>
+                {% else %}
+                  <option value="INR">INR</option>
+                {% endif %}
+                {% if currency == 'USD' %}
+                  <option value="USD" selected="selected">USD</option>
+                {% else %}
+                  <option value="USD">USD</option>
+                {% endif %}
+              </select>
+            </div>
+            <div class="text-right">
+              <button type="button" id="button-filter" class="btn btn-default"><i class="fa fa-filter"></i> {{ button_filter }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
+          </div>
+          <div class="panel-body">
+            <form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form-product">
+              <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                  <thead>
+                    <tr>
+                      <td style="width: 1px;" class="text-center">
+                        <input type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" />
+                      </td>
+
+                      <td class="text-left">
+                        <a>#</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_bank_account_no }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_method }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_currency }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_email }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_transaction_reference_id }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_transaction_date }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_date_added }}</a>
+                      </td>
+
+                      <td class="text-left">
+                        <a>{{ column_ledger_id }}</a>
+                      </td>
+
+                      <td class="text-right">{{ column_action }}</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% if all_payments %}
+                      {% for all_payment in all_payments %}
+                        <tr>
+                          <td class="text-center">
+                            {% if product.product_id in selected %}
+                              <input type="checkbox" name="selected[]" value="{{ product.product_id }}" checked="checked" />
+                            {% else %}
+                              <input type="checkbox" name="selected[]" value="{{ product.product_id }}" />
+                            {% endif %}
+                          </td>
+
+                          <td class="text-left">{{ all_payment.transaction_log_id }}</td>
+
+                          <td class="text-left">{{ all_payment.bank_account_no }}</td>
+                          <td class="text-left">{{ all_payment.method }}</td>
+                          <td class="text-left">{{ all_payment.currency }}</td>
+                          <td class="text-left">{{ all_payment.email }}</td>
+                          <td class="text-left">{{ all_payment.transaction_reference_id }}</td>
+                          <td class="text-left">{{ all_payment.transaction_date }}</td>
+                          <td class="text-left">{{ all_payment.date_added }}</td>
+                          <td class="text-left">{{ all_payment.ledger_id ? all_payment.ledger_id : 'N/A' }}</td>
+
+                          <td class="text-right">
+                            <a href="{{ all_payment.edit }}" id="{{ all_payment.transaction_log_id }}" data-toggle="tooltip" title="{{ button_edit }}" class="btn btn-primary edit"><i class="fa fa-pencil"></i></a>
+                            <a href="{{ all_payment.view }}" id="{{ all_payment.transaction_log_id }}" data-toggle="tooltip" title="View Transaction" class="btn btn-primary"><i class="fa fa-eye"></i></a>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    {% else %}
+                      <tr>
+                        <td class="text-center" colspan="8">{{ text_no_results }}</td>
+                      </tr>
+                    {% endif %}
+                  </tbody>
+                </table>
+              </div>
+            </form>
+            <div class="row">
+              <div class="col-sm-6 text-left">{{ pagination }}</div>
+              <div class="col-sm-6 text-right">{{ results }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .custom-form {
+      padding: 15px;
+      margin-top: 20px;
+    }
+    .custom-form-lable {
+      font-size: 15px;
+      line-height: 2;
+    }
+    .tb-style {
+      margin-top: 50px;
+      margin-left: 10px;
+    }
+  </style>
+
+  {# Modal #}
+  <div class="modal fade" id="addtransaction">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">Add Bank Transaction</h4>
+        </div>
+        <div class="modal-body" style="width: fit-content;margin: auto;">
+          <div id="error_message"></div>
+          <form action="" id="form" method="post">
+            <div class="custom-form">
+              <label class="col-sm-6 control-label custom-form-lable" for="">{{ column_bank_account_no }}</label>
+              <div class="col-sm-6">
+                <select name="bank_account_no" id="bank_account_no" class="form-control bank_account_no">
+                  <option value="1234567890">1234567890</option>
+                  <option value="0987654321">0987654321</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="custom-form">
+              <label class="col-sm-6 control-label custom-form-lable" for="">{{ column_method }}</label>
+              <div class="col-sm-6">
+                <select name="method" id="method" class="form-control method">
+                  <option value="NEFT">NEFT</option>
+                  <option value="UPI">UPI</option>
+                  <option value="RTGS">RTGS</option>
+                  <option value="IMPS">IMPS</option>
+                  <option value="Cash-Desposite">Cash-Desposite</option>
+                  <option value="SWIFT">SWIFT</option>
+                  <option value="DD">DD</option>
+                  <option value="CHEQUE">CHEQUE</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="custom-form">
+              <label class="col-sm-6 control-label custom-form-lable" for="">{{ column_amount }}</label>
+              <div class="col-sm-6">
+                <input type="number" name="amount" value="" placeholder="" id="amount" class="form-control" />
+              </div>
+            </div>
+
+            <div class="custom-form">
+              <label class="col-sm-6 control-label custom-form-lable" for="">{{ column_currency }}</label>
+              <div class="col-sm-6">
+                <select name="currency" id="currency" class="form-control currency">
+                  <option value="INR">INR</option>
+                  <option value="USD">USD</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="custom-form">
+              <label class="col-sm-6 control-label custom-form-lable" for="">{{ column_email }}</label>
+              <div class="col-sm-6">
+                <input type="text" name="filter_email" id="filter_email" class="form-control" />
+                <input type="hidden" name="customer_id" id="customer_id" class="customer_id" value="" />
+                <input type="hidden" name="email" id="email" value="" />
+              </div>
+            </div>
+
+            <div class="custom-form">
+              <label class="col-sm-6 control-label custom-form-lable" for="">{{ column_transaction_reference_id }}</label>
+              <div class="col-sm-6">
+                <input type="text" name="transaction_reference_id" value="" placeholder="" id="transaction_reference_id"  class="form-control transaction_reference_id" />
+              </div>
+            </div>
+
+            <div class="custom-form">
+              <label class="col-sm-6 control-label custom-form-lable" for="">{{ column_transaction_naration }}</label>
+              <div class="col-sm-6">
+                <textarea name="narration" id="narration" cols="22" rows="5"></textarea>
+              </div>
+            </div>
+
+            <div class="custom-form" style="margin-top: 80px;">
+              <label class="col-sm-6 control-label custom-form-lable" for="">{{ column_transaction_date }}</label>
+              <div class="col-sm-6">
+                <input type="date" name="transaction_date" value="" placeholder="" id="transaction_date" class="form-control transaction_date" />
+              </div>
+            </div>
+
+            <div class="custom-form">
+              <label class="col-sm-6 control-label custom-form-lable" for="">{{ column_comments }}</label>
+              <div class="col-sm-6">
+                <textarea name="comment" id="comment" cols="22" rows="5"></textarea>
+              </div>
+            </div>
+             <input type="hidden" name="transaction_log_id" value="" placeholder="" id="transaction_log_id" class="form-control transaction_log_id" />
+          </form>
+
+          <div id="razorpay-response"></div>
+
+          <div id="loader" style="display:none;">
+            <img src="http://v3.robomart.local/image/loader.gif" width="60px;" style="margin-top: 60px;   margin-left: 50%;  " alt="" />
+          </div>
+        </div>
+        <div class="modal-footer" style="margin-top: 145px;">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="button" id="add_transaction" class="btn btn-primary"><i class="fa fa-plus"></i> Add</button>
+          <button type="button" id="edit_transaction" style="display:none;"class="btn btn-primary"><i class="fa fa-plus"></i> Update</button>
+        </div>
+      </div>
+      <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+  </div>
+  <!-- /.modal -->
+
+  <script type="text/javascript"><!--
+
+$('.addTransaction').on('click', function() {
+      $('#error_message').children('div').remove();
+      $('.bank_account_no option:first').prop('selected', true);
+      $('.method option:first').prop('selected', true);
+      $('.currency option:first').prop('selected', true);
+      $('#amount').val('');
+      $('#filter_email').val('');
+      $('.customer_id').val('');
+      $('#email').val('');
+      $('.transaction_reference_id').val('');
+      $('.transaction_date').val('');
+      $('#narration').val('');
+      $('#comment').val('');
+      $('.transaction_log_id').val('');
+});
+$('#button-filter').on('click', function() {
+	var url = '';
+
+  	var bank_account_no = $('select[name=\'bank_account_no\']').val();
+
+	if (bank_account_no !== '') {
+		url += '&bank_account_no=' + encodeURIComponent(bank_account_no);
+	}
+
+	var method = $('select[name=\'method\']').val();
+
+	if (method !== '') {
+		url += '&method=' + encodeURIComponent(method);
+	}
+
+
+	var fill_email = $('input[name=\'fill_email\']').val();
+
+	if (fill_email) {
+		url += '&fill_email=' + encodeURIComponent(fill_email);
+	}
+
+	var transaction_reference_id = $('input[name=\'transaction_reference_id\']').val();
+
+	if (transaction_reference_id) {
+		url += '&transaction_reference_id=' + encodeURIComponent(transaction_reference_id);
+	}
+
+
+	var transaction_date = document.querySelector('#transaction_date').value;
+
+	if (transaction_date !== '') {
+		url += '&transaction_date=' + encodeURIComponent(transaction_date);
+	}
+
+
+	var currency = $('select[name=\'currency\']').val();
+
+	if (currency !== '') {
+		url += '&currency=' + encodeURIComponent(currency);
+	}
+
+
+
+	location = 'index.php?route=neft/neft&user_token={{ user_token }}' + url;
+});
+//--></script>
+  <script type="text/javascript"><!--
+
+
+// IE and Edge fix!
+$('button[form=\'form-product\']').on('click', function(e) {
+	$('#form-product').attr('action', $(this).attr('formaction'));
+});
+  
+$('input[name=\'filter_name\']').autocomplete({
+	'source': function(request, response) {
+		$.ajax({
+			url: 'index.php?route=catalog/product/autocomplete&user_token={{ user_token }}&filter_name=' +  encodeURIComponent(request),
+			dataType: 'json',
+			success: function(json) {
+				response($.map(json, function(item) {
+					return {
+						label: item['name'],
+						value: item['product_id']
+					}
+				}));
+			}
+		});
+	},
+	'select': function(item) {
+		$('input[name=\'filter_name\']').val(item['label']);
+	}
+});
+
+$('input[name=\'filter_model\']').autocomplete({
+	'source': function(request, response) {
+		$.ajax({
+			url: 'index.php?route=catalog/product/autocomplete&user_token={{ user_token }}&filter_model=' +  encodeURIComponent(request),
+			dataType: 'json',
+			success: function(json) {
+				response($.map(json, function(item) {
+					return {
+						label: item['model'],
+						value: item['product_id']
+					}
+				}));
+			}
+		});
+	},
+	'select': function(item) {
+		$('input[name=\'filter_model\']').val(item['label']);
+	}
+});
+
+
+$("#add_transaction").click(function(e){ 
+
+if(confirm('Are you sure to add this transaction') == true){
+ $.ajax({
+   	url: 'index.php?route=neft/neft/addPayment&user_token={{ user_token }}',
+    data: new FormData(document.querySelector('#form')),
+    dataType:'json',
+    processData: false,
+    contentType: false,
+    type:'post',
+    beforeSend(xhr){
+       $('#error_message').html('');
+      $('#loader').show();
+      $('#razorpay-response').html('');
+
+   
+
+    $('#edit_transaction').hide();
+    $('#add_transaction').show();
+
+    },
+    success: function(result){
+
+
+      if(result.error == '1' ){
+        console.log(result);
+        $('#error_message').html(result.error_message);
+      }else{
+         $('#error_message').html(result.success_message);
+      }
+      
+            //  $('#razorpay-response').html(result.message);              
+              
+              // $('#get_transaction').show();  
+              // $('#add_transaction').hide(); 
+              
+               // $('#razorpay-response').append(result.notes);  
+                
+               $('#loader').hide();             
+              }
+  });
+}
+
+});
+
+$("#edit_transaction").click(function(e){ 
+
+if(confirm('Are you sure to update this transaction') == true){
+ $.ajax({
+   	url: 'index.php?route=neft/neft/editPayment&user_token={{ user_token }}',
+    data: new FormData(document.querySelector('#form')),
+    dataType:'json',
+    processData: false,
+    contentType: false,
+    type:'post',
+    beforeSend(xhr){
+       $('#error_message').html('');
+      $('#loader').show();
+      $('#razorpay-response').html('');
+
+    $('#edit_transaction').hide();
+    $('#add_transaction').show();
+
+    },
+    success: function(result){
+
+
+      if(result.error == '1' ){
+        console.log(result);
+        $('#error_message').html(result.error_message);
+      }else{
+         $('#error_message').html(result.success_message);
+      }
+      
+            //  $('#razorpay-response').html(result.message);              
+              
+              // $('#get_transaction').show();  
+              // $('#add_transaction').hide(); 
+              
+               // $('#razorpay-response').append(result.notes);  
+                
+               $('#loader').hide();             
+              }
+  });
+}
+
+});
+
+
+  $('input[name=\'filter_email\']').autocomplete({
+    'source': function(request, response) {
+      $.ajax({
+        url: 'index.php?route=customer/customer/autocomplete&user_token={{ user_token }}&filter_email=' +  encodeURIComponent(request),
+        dataType: 'json',
+        success: function(json) {
+          response($.map(json, function(item) {
+            return {
+              label: item['email'],
+              value: item['customer_id']
+            }
+          }));
+        }
+      });
+    },
+    'select': function(item) {
+      $('input[name=\'filter_email\']').val(item['label']);     
+      $('input[name=\'customer_id\']').val(item['value']);
+       $('input[name=\'email\']').val(item['label']);
+    }
+  });
+
+
+  $('input[name=\'fill_email\']').autocomplete({
+    'source': function(request, response) {
+      $.ajax({
+        url: 'index.php?route=customer/customer/autocomplete&user_token={{ user_token }}&filter_email=' +  encodeURIComponent(request),
+        dataType: 'json',
+        success: function(json) {
+          response($.map(json, function(item) {
+            return {
+              label: item['email'],
+              value: item['customer_id']
+            }
+          }));
+        }
+      });
+    },
+    'select': function(item) {
+      $('input[name=\'fill_email\']').val(item['label']);     
+     
+    }
+  });
+
+
+
+
+
+$(".edit").click(function(e){ 
+e.preventDefault();
+
+var id = this.id;
+ $.ajax({
+   	url: 'index.php?route=neft/neft/update&user_token={{ user_token }}&id=' +  encodeURIComponent(id),    
+    dataType:'json',
+    processData: false,
+    contentType: false,
+    type:'get',
+    beforeSend(xhr){
+    $('#edit_transaction').show();
+    $('#add_transaction').hide();
+    },
+    success: function(result){
+               
+             $('#bank_account_no>option[value="'+ result.bank_account_no +'"]').prop('selected', true);
+             $('#method>option[value="'+ result.method +'"]').prop('selected', true);
+             $('#currency>option[value="'+ result.currency +'"]').prop('selected', true);
+             $('#amount').val(result.amount);
+             $('#filter_email').val(result.email);
+             $('.customer_id').val(result.customer_id);
+             $('#email').val(result.email);
+             $('.transaction_reference_id').val(result.transaction_reference_id);
+             $('.transaction_date').val(result.transaction_date);
+             $('#narration').val(result.transaction_naration);
+             $('#comment').val(result.comment);
+               $('.transaction_log_id').val(result.transaction_log_id);
+                 $('#addtransaction').modal('show');
+              }
+  });
+
+
+});
+
+//--></script>
+</div>
+{{ footer }}

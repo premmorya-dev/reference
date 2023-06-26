@@ -1,0 +1,2979 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+	<name><![CDATA[<font color="#0088CC"><b>APS Address Extra Field</b></font>]]></name>
+	<code>aps_extra_field</code>
+	<version>3.x.x</version>
+	<author><![CDATA[<font color="#0088CC"><b>apsinno.com</b></font>]]></author>
+	<link><![CDATA[https://apsinno.com/]]></link>	
+  
+	<file path="catalog/controller/account/address.php">
+		<operation>
+			<search index=""><![CDATA[
+            $find = array(
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+	if ($this->config->get('module_aps_extra_field_status')) {
+				$format = str_replace('{company}', '{company} {gstin}', $format);
+			$format = str_replace('{country}', '{country} {mobile_no}', $format);
+			}
+
+		
+// aps@prem		
+			]]></add>
+		</operation>
+
+        <operation>
+			<search><![CDATA[
+           '{address_1}',
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+			'{gstin}',
+			'{mobile_no}',
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+        <operation>
+			<search><![CDATA[
+           'address_1' => $result['address_1'],
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+		'gstin'   => '<br>' .'GSTIN : '. $result['gstin'],
+			'mobile_no'   => '<br>' .'Mobile : '. $result['mobile_no_country_code'] . ' ' . $result['mobile_no'],
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+           <operation>
+			<search><![CDATA[
+          if (isset($this->request->post['address_1'])) {
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+	    $data['country_codes'] = $this->model_account_address->getCountryCode();
+		if (isset($this->request->post['gstin'])) {
+			$data['gstin'] = $this->request->post['gstin'];
+		} elseif (!empty($address_info)) {
+			$data['gstin'] = $address_info['gstin'];
+		} else {
+			$data['gstin'] = '';
+		}
+
+		if (isset($this->request->post['mobile_no_country_code'])) {
+			$data['mobile_no_country_code'] = $this->request->post['mobile_no_country_code'];
+		} elseif (!empty($address_info)) {
+			$data['mobile_no_country_code'] = $address_info['mobile_no_country_code'];
+		} else {
+			$data['gstin'] = '';
+		}
+
+		if (isset($this->request->post['mobile_no'])) {
+			$data['mobile_no'] = $this->request->post['mobile_no'];
+		} elseif (!empty($address_info)) {
+			$data['mobile_no'] = $address_info['mobile_no'];
+		} else {
+			$data['mobile_no'] = '';
+		}
+		if (isset($this->request->post['mobile_no_country_code'])) {
+			$data['mobile_no_country_code'] = $this->request->post['mobile_no_country_code'];
+		} elseif (!empty($address_info)) {
+			$data['mobile_no_country_code'] = $address_info['mobile_no_country_code'];
+		} else {
+			$data['mobile_no_country_code'] = '';
+		}
+
+		if (isset($this->error['error_gstin'])) {
+			$data['error_gstin'] = $this->error['error_gstin'];
+		} else {
+			$data['error_gstin'] = '';
+		}
+
+		if (isset($this->error['error_country_code'])) {
+			$data['error_country_code'] = $this->error['error_country_code'];
+		} else {
+			$data['error_country_code'] = '';
+		}
+
+		if (isset($this->error['error_mobile_no'])) {
+			$data['error_mobile_no'] = $this->error['error_mobile_no'];
+		} else {
+			$data['error_mobile_no'] = '';
+		}
+
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+  <operation>
+			<search><![CDATA[
+          $country_info = $this->model_localisation_country->getCountry($this->request->post['country_id']);
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+if ($this->config->get('module_aps_extra_field_status')) { 
+	if (isset($this->request->post['gstin']) && $this->request->post['gstin']  ) { 
+			
+			if(utf8_strlen($this->request->post['gstin']) != 15) {
+				$this->error['error_gstin'] = $this->language->get('error_gstin');
+			} 
+		
+		}
+		if (!isset($this->request->post['mobile_no_country_code']) || $this->request->post['mobile_no_country_code'] == '' || !is_numeric($this->request->post['mobile_no_country_code'])) {
+			$this->error['error_mobile_no'] = $this->language->get('error_country_code');
+		}
+
+
+
+		
+
+
+
+		if (!isset($this->request->post['mobile_no']) || !$this->request->post['mobile_no'] ) {
+			$this->error['error_mobile_no'] = $this->language->get('error_mobile_no');
+		}else{
+			if (isset($this->request->post['mobile_no_country_code']) && $this->request->post['mobile_no_country_code'] &&      $this->request->post['mobile_no_country_code'] == '+91' ) {
+				if(!is_numeric($this->request->post['mobile_no'])){
+					$this->error['error_mobile_no'] = $this->language->get('error_mobile_no_numeric');
+		
+				}else if(utf8_strlen(trim($this->request->post['mobile_no'])) != 10){
+					$this->error['error_mobile_no'] = $this->language->get('error_mobile_no_length');
+		
+				}
+			}
+		}
+
+}
+
+		
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+
+
+           <operation>
+			<search><![CDATA[
+          $data['back'] = $this->url->link('account/address', '', true);
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+		if ($this->config->get('module_aps_extra_field_status')) {
+				$data['module_aps_extra_field_status'] = $this->config->get('module_aps_extra_field_status');
+			}else {
+				$data['module_aps_extra_field_status'] = false;
+			}
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+		
+					
+	</file>	
+
+
+
+
+    <file path="catalog/model/account/address.php">
+		<operation>
+			<search index="0" ><![CDATA[
+           if (!empty($data['default'])) {
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+			if($address_id && $this->config->get('module_aps_extra_field_status')){
+			
+			$this->db->query("INSERT INTO " . DB_PREFIX . "apsinno_address_extra_fields SET address_id = " . (int)$address_id . ", gstin = '" . $this->db->escape($data['gstin']) . "', mobile_no_country_code = '" . $this->db->escape($data['mobile_no_country_code']) . "', mobile_no = '" . $this->db->escape($data['mobile_no']) . "'");
+		}
+// aps@prem		
+			]]></add>
+		</operation> 
+
+
+<operation>
+			<search index="1" ><![CDATA[
+           if (!empty($data['default'])) {
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+			if($address_id && $this->config->get('module_aps_extra_field_status')){
+		
+			if($address_id && $this->config->get('module_aps_extra_field_status')){
+
+				$this->db->query("DELETE FROM " . DB_PREFIX . "apsinno_address_extra_fields WHERE address_id = '" . (int)$address_id . "'");
+
+	
+				$this->db->query("INSERT INTO " . DB_PREFIX . "apsinno_address_extra_fields SET address_id='". (int)$address_id  ."', gstin = '" . $this->db->escape($data['gstin']) . "', mobile_no_country_code = '" . $this->db->escape($data['mobile_no_country_code']) . "', mobile_no = '" . $this->db->escape($data['mobile_no']) . "'");
+			}
+		}
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+        <operation>
+			<search><![CDATA[
+          'address_1'      => $address_query->row['address_1'],
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+			'gstin'        => $address_query->row['gstin'],
+			'mobile_no_country_code'        => $address_query->row['mobile_no_country_code'],
+			'mobile_no'        => $address_query->row['mobile_no'],
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+        <operation>
+			<search><![CDATA[
+         'address_1'      => $result['address_1'],
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+				'gstin'        => $result['gstin'],
+				'mobile_no_country_code'        => $result['mobile_no_country_code'],
+				'mobile_no'        => $result['mobile_no'],
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+		  <operation>
+			<search><![CDATA[
+        $this->db->query("DELETE FROM " . DB_PREFIX . "address WHERE address_id = '" . (int)$address_id . "' AND customer_id = '" . (int)$this->customer->getId() . "'");
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+	// aps@prem
+			$this->db->query("DELETE FROM " . DB_PREFIX . "apsinno_address_extra_fields WHERE address_id = " . (int)$address_id );
+// aps@prem		
+			]]></add>
+		</operation>
+
+		  <operation>
+			<search><![CDATA[
+       $address_query = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "address WHERE address_id = '" . (int)$address_id . "' AND customer_id = '" . (int)$this->customer->getId() . "'");
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+	// aps@prem
+		$address_query = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "address a LEFT JOIN " . DB_PREFIX . "apsinno_address_extra_fields  aef on (a.address_id=aef.address_id) WHERE a.address_id = '" . (int)$address_id . "' AND customer_id = '" . (int)$this->customer->getId() . "'");
+// aps@prem		
+			]]></add>
+		</operation>
+
+  <operation>
+			<search><![CDATA[
+       $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "address WHERE customer_id = '" . (int)$this->customer->getId() . "'");
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+	// aps@prem
+			$query = $this->db->query("SELECT  *,a.address_id FROM " . DB_PREFIX . "address a LEFT JOIN " . DB_PREFIX . "apsinno_address_extra_fields  aef on (a.address_id=aef.address_id) WHERE customer_id = '" . (int)$this->customer->getId() . "'");
+
+// aps@prem		
+			]]></add>
+		</operation> 
+
+
+		 <operation>
+			<search><![CDATA[
+       public function getTotalAddresses() {
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+	public function getCountryCode() {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "apsinno_country_code order by sort_order desc, country_name ASC")->rows;
+
+		return $query;
+	}
+
+	// aps@prem
+			]]></add>
+		</operation>
+
+
+          
+
+
+		
+					
+	</file>	
+
+     <file path="catalog/view/theme/journal3/template/account/address_form.twig">
+		
+       
+       <operation>
+			<search><![CDATA[
+         {{ header }}
+            ]]></search>
+			<add position="before"><![CDATA[
+            <style>
+
+@media screen and (max-device-width: 1024px) {
+  .input-group {
+    width: 400% !important;
+    
+  }
+}
+</style>
+	
+			]]></add>
+		</operation>
+
+       
+       
+       <operation>
+			<search><![CDATA[
+           <div class="form-group {% if j3.settings.get('accountAddressAddress1Field') == 'required' %}required{% endif %} address-address-1">
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+			{% if module_aps_extra_field_status %}
+           <div class="form-group address-company">
+            <label class="col-sm-2 control-label" for="input-company">{{ text_gstin }}</label>
+            <div class="col-sm-10">
+              <input type="text" name="gstin" value="{{ gstin }}" placeholder="{{ text_gstin }}" id="input-company" class="form-control" />
+              {% if error_gstin %}
+              <div class="text-danger">{{ error_gstin }}</div>
+              {% endif %}
+             </div>
+          </div>
+
+  {% endif %}
+	
+	
+	
+			]]></add>
+		</operation>
+
+
+
+		<operation>
+			<search><![CDATA[
+          <div class="form-group">
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+				{% if module_aps_extra_field_status %}
+          
+
+            <div class="form-group required">
+            <label class="col-md-2 control-label" for="input-country">{{ text_mobile_no }}</label>
+       
+
+               <div class="col-md-10 " style="max-width: 500px;">
+                          <div class="col-md-6 input-group">
+                          
+                       <span class="input-group-addon " style="
+    height: 34px;
+          min-width: 105px;
+           line-height: inherit;
+            
+">Country Code</span>
+
+                            <select name="mobile_no_country_code" id="input-country" class="form-control">
+                <option value="">{{ text_select }}</option>
+
+                {% for country_code in country_codes %}
+                  {% if country_code.country_code == mobile_no_country_code %}
+
+                <option value="{{ country_code.country_code }}" selected="selected">{{country_code.country_name }} {{ country_code.country_code }}</option>
+
+                  {% else %}
+
+                <option value="{{ country_code.country_code }}">{{country_code.country_name }} ( {{ country_code.country_code }} )</option>
+
+                  {% endif %}
+                {% endfor %}
+
+              </select>
+           
+                           </div>
+
+                          <div class="col-md-6 input-group" >
+                    
+                             <input type="text" name="mobile_no"  style="padding-right: 40px;" value="{{ mobile_no }}" placeholder="{{ mobile_no }}" id="input-company" class="form-control" />
+               
+                          </div>
+                          
+             {% if error_mobile_no %}
+              <div class="text-danger">{{ error_mobile_no }}</div>
+              {% endif %}
+              </div>
+
+
+              
+          </div>
+
+          
+       {% endif %}
+	
+	
+	
+	
+			]]></add>
+		</operation>
+
+       
+					
+	</file>	
+
+     <file path="catalog/language/en-gb/account/address.php">
+		<operation>
+			<search><![CDATA[
+          // Error
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+		$_['text_gstin']      = 'GSTIN :';
+		$_['text_mobile_no']      = 'Mobile :';
+		$_['error_gstin']      = 'Please provide valid GST number';
+		$_['error_gstin_length']      = 'GST number should be 15 digit';
+		
+		$_['error_country_code']      = 'Please select the country code';
+		$_['error_mobile_no']      = 'Please provide the valid mobile number';
+		$_['error_mobile_no_numeric']      = 'Mobile number should be numeric';
+		$_['error_mobile_no_length']      = 'Mobile number number should be 10 digit';
+// aps@prem		
+			]]></add>
+		</operation>
+
+       
+					
+	</file>	
+
+	  <file path="admin/language/en-gb/sale/order.php">
+		<operation>
+			<search><![CDATA[
+          // Help
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+		$_['text_gstin']      = 'GSTIN :';
+		$_['text_mobile_no']      = 'Mobile :';
+		$_['error_gstin']      = 'Please provide valid GST number';
+		$_['error_gstin_length']      = 'GST number should be 15 digit';
+		
+		$_['error_country_code']      = 'Please select the country code';
+		$_['error_mobile_no']      = 'Please provide the valid mobile number';
+		$_['error_mobile_no_numeric']      = 'Mobile number should be numeric';
+		$_['error_mobile_no_length']      = 'Mobile number number should be 10 digit';
+		$_['column_order_payment']      = 'Order Payment';
+// aps@prem		
+			]]></add>
+		</operation>
+
+       
+					
+	</file>	
+<!-- order page  -->
+
+	   <file path="catalog/controller/checkout/confirm.php">
+		<operation>
+			<search><![CDATA[
+         if (isset($this->session->data['payment_method']['title'])) {
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+		$order_data['payment_gstin'] = $this->session->data['payment_address']['gstin'];
+			$order_data['payment_mobile_no_country_code'] = $this->session->data['payment_address']['mobile_no_country_code'];
+			$order_data['payment_mobile_no'] = $this->session->data['payment_address']['mobile_no'];
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+		<operation>
+			<search><![CDATA[
+         if (isset($this->session->data['shipping_method']['title'])) {
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+		$order_data['shipping_gstin'] = $this->session->data['shipping_address']['gstin'];
+				$order_data['shipping_mobile_no_country_code'] = $this->session->data['shipping_address']['mobile_no_country_code'];
+				$order_data['shipping_mobile_no'] = $this->session->data['shipping_address']['mobile_no'];
+// aps@prem		
+			]]></add>
+		</operation>
+       
+					
+	</file>	
+
+
+	 <file path="catalog/model/checkout/order.php">
+		<operation>
+			<search><![CDATA[
+         return $order_id;
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+		if ($this->config->get('module_aps_extra_field_status')) {
+			$this->db->query("INSERT INTO " . DB_PREFIX . "apsinno_order_extra_fields SET order_id = " . (int)$order_id . ", shiping_address_gstin = '" . $this->db->escape($data['shipping_gstin']) . "', payment_address_gstin = '" . $this->db->escape($data['payment_gstin']) . "', shiping_address_country_code = '" . $this->db->escape($data['shipping_mobile_no_country_code']) . "', shiping_address_mobile_no = '" . $this->db->escape($data['shipping_mobile_no']) . "', payment_address_country_code = '" . $this->db->escape($data['payment_mobile_no_country_code']) . "', payment_address_mobile_no = '" . $this->db->escape($data['payment_mobile_no']) . "'");
+		
+		if($data['products']){
+			foreach($data['products'] as $product ){
+				$product_extra_data = $this->db->query("SELECT * FROM " . DB_PREFIX . "apsinno_product_extra_fields WHERE product_id =" . $product['product_id'])->row;
+				if($product_extra_data ){
+					$this->db->query("INSERT  INTO  " . DB_PREFIX . "apsinno_order_product_extra SET order_id ='".$order_id."',
+					product_id = '".$product['product_id']."',
+					hsn_or_sac_zoho = '".$product_extra_data['hsn_or_sac_zoho']."',
+					initial_stock_rate_zoho =  '".$product_extra_data['initial_stock_rate_zoho']."',
+					inventory_account_id_zoho =  '".$product_extra_data['inventory_account_id_zoho']."',
+					is_taxable_zoho =  '".$product_extra_data['is_taxable_zoho']."',
+					item_type_zoho =  '".$product_extra_data['item_type_zoho']."',
+					product_type_zoho =  '".$product_extra_data['product_type_zoho']."',
+					sale_account_id_zoho =  '".$product_extra_data['sale_account_id_zoho']."',
+					tax_id_inter_state_zoho =  '".$product_extra_data['tax_id_inter_state_zoho']."',
+					tax_id_intra_state_zoho =  '".$product_extra_data['tax_id_intra_state_zoho']."',
+					unit_zoho =  '".$product_extra_data['unit_zoho']."',
+					contry_of_origin_id =  '".$product_extra_data['contry_of_origin_id']."'");
+	
+				}
+			
+			}
+			
+		}
+		
+		}
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+		<operation>
+			<search><![CDATA[
+       $this->db->query("DELETE FROM `" . DB_PREFIX . "order` WHERE order_id = '" . (int)$order_id . "'");
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+	$this->db->query("DELETE FROM `" . DB_PREFIX . "apsinno_order_extra_fields` WHERE order_id = '" . (int)$order_id . "'");
+
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+		<operation>
+			<search><![CDATA[
+     $this->db->query("DELETE FROM " . DB_PREFIX . "order_total WHERE order_id = '" . (int)$order_id . "'");
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+	// aps@prem
+	if ($this->config->get('module_aps_extra_field_status')) {
+	$this->db->query("UPDATE " . DB_PREFIX . "apsinno_order_extra_fields SET shiping_address_gstin = '" . $this->db->escape($data['shipping_gstin']) . "', payment_address_gstin = '" . $this->db->escape($data['payment_gstin']) . "', shiping_address_country_code = '" . $this->db->escape($data['shipping_mobile_no_country_code']) . "', shiping_address_mobile_no = '" . $this->db->escape($data['shipping_mobile_no']) . "', payment_address_country_code = '" . $this->db->escape($data['payment_mobile_no_country_code']) . "', payment_address_mobile_no = '" . $this->db->escape($data['payment_mobile_no']) . "' Where order_id="  .(int)$order_id );
+}
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+
+       
+					
+	</file>	
+
+
+	<file path="catalog/controller/account/order.php">
+
+	<operation>
+			<search><![CDATA[
+       		if ($order_info) {
+
+            ]]></search>
+			<add position="after"><![CDATA[
+// aps@prem
+if ($this->config->get('module_aps_extra_field_status')) {
+				$data['module_aps_extra_field_status'] = $this->config->get('module_aps_extra_field_status');
+			}else {
+				$data['module_aps_extra_field_status'] = false;
+			}
+$extra_field = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "apsinno_order_extra_fields WHERE order_id = " . (int)$order_info['order_id'])->row;
+
+if(!$extra_field){
+	$extra_field['shiping_address_gstin'] ='';
+	$extra_field['shiping_address_country_code'] ='';
+	$extra_field['shiping_address_mobile_no'] ='';
+	$extra_field['payment_address_gstin'] ='';
+	$extra_field['payment_address_country_code'] ='';
+	$extra_field['payment_address_mobile_no'] ='';		
+}
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+
+		<operation>
+			<search><![CDATA[
+        $find = array(
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+	if ($this->config->get('module_aps_extra_field_status')) {
+				$format = str_replace('{company}', '{company} {gstin}', $format);
+	$format = str_replace('{country}', '{country} {mobile_no}', $format);
+			}
+	
+// aps@prem		
+			]]></add>
+		</operation>
+
+		<operation>
+			<search><![CDATA[
+      '{address_1}',
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+		// aps@prem
+			'{gstin}',
+			'{mobile_no}',
+// aps@prem	
+			]]></add>
+		</operation>
+
+			<operation>
+			<search><![CDATA[
+     'address_1' => $order_info['payment_address_1'],
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+		'gstin'   => '<br>' .'GSTIN : '. $extra_field['payment_address_gstin'],
+		'mobile_no'   => '<br>' .'Mobile : '. $extra_field['payment_address_country_code'] . ' ' . $extra_field['payment_address_mobile_no'],
+// aps@prem	
+			]]></add>
+		</operation>
+
+
+		<operation>
+			<search><![CDATA[
+   'address_1' => $order_info['shipping_address_1'],
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+// aps@prem
+		'gstin'   => '<br>' .'GSTIN : '. $extra_field['shiping_address_gstin'],
+		'mobile_no'   => '<br>' .'Mobile : '. $extra_field['shiping_address_country_code'] . ' ' . $extra_field['shiping_address_mobile_no'],
+// aps@prem	
+			]]></add>
+		</operation>
+
+
+
+       
+					
+	</file>	
+
+
+<!-- For Mails -->
+
+  <file path="catalog/controller/mail/order.php">
+		<operation>
+			<search><![CDATA[
+         $order_products = $this->model_checkout_order->getOrderProducts($order_info['order_id']);
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+
+	if ($this->config->get('module_aps_extra_field_status')) {
+				$data['module_aps_extra_field_status'] = $this->config->get('module_aps_extra_field_status');
+			}else {
+				$data['module_aps_extra_field_status'] = false;
+			}
+	$extra_field = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "apsinno_order_extra_fields WHERE order_id = " . (int)$order_info['order_id'])->row;
+
+		if(!$extra_field){
+			$extra_field['shiping_address_gstin'] ='';
+			$extra_field['shiping_address_country_code'] ='';
+			$extra_field['shiping_address_mobile_no'] ='';
+			$extra_field['payment_address_gstin'] ='';
+			$extra_field['payment_address_country_code'] ='';
+			$extra_field['payment_address_mobile_no'] ='';		
+		}
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+		<operation>
+			<search><![CDATA[
+          $find = array(
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+	if ($this->config->get('module_aps_extra_field_status')) {
+				$format = str_replace('{company}', '{company} {gstin}', $format);
+			$format = str_replace('{country}', '{country} {mobile_no}', $format);
+			}
+			
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+
+		<operation>
+			<search><![CDATA[
+        '{address_1}',
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+	'{gstin}',
+			'{mobile_no}',
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+
+		<operation>
+			<search><![CDATA[
+         'address_1' => $order_info['payment_address_1'],
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+	'gstin'   => '<br>' .'GSTIN : '. $extra_field['payment_address_gstin'],
+		'mobile_no'   => '<br>' .'Mobile : '. $extra_field['payment_address_country_code'] . ' ' . $extra_field['payment_address_mobile_no'],
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+			<operation>
+			<search><![CDATA[
+         'address_1' => $order_info['shipping_address_1'],
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+		'gstin'   => '<br>' .'GSTIN : '. $extra_field['shiping_address_gstin'],
+		'mobile_no'   => '<br>' .'Mobile : '. $extra_field['shiping_address_country_code'] . ' ' . $extra_field['shiping_address_mobile_no'],
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+
+
+
+
+       
+					
+	</file>	
+
+
+	<!-- For Success Page -->
+
+  <file path="catalog/model/extension/module/ordersuccesspage.php">
+		<operation>
+			<search><![CDATA[
+        public function getOrderData($order_info) {
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+	// aps@prem
+
+	if ($this->config->get('module_aps_extra_field_status')) {
+				$data['module_aps_extra_field_status'] = $this->config->get('module_aps_extra_field_status');
+			}else {
+				$data['module_aps_extra_field_status'] = false;
+			}
+
+	$extra_field = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "apsinno_order_extra_fields WHERE order_id = " . (int)$order_info['order_id'])->row;
+
+		if(!$extra_field){
+			$extra_field['shiping_address_gstin'] ='';
+			$extra_field['shiping_address_country_code'] ='';
+			$extra_field['shiping_address_mobile_no'] ='';
+			$extra_field['payment_address_gstin'] ='';
+			$extra_field['payment_address_country_code'] ='';
+			$extra_field['payment_address_mobile_no'] ='';		
+		}
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+		<operation>
+			<search><![CDATA[
+         $data['payment_address'] = str_replace(array("\r\n", "\r", "\n"), '<br />', preg_replace(array("/\s\s+/", "/\r\r+/", "/\n\n+/"), '<br />', trim(str_replace($find, $replace, $format))));
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+	if ($this->config->get('module_aps_extra_field_status')) {
+			$format = str_replace('{company}', '{company} {gstin}', $format);
+	$format = str_replace('{country}', '{country} {mobile_no}', $format);
+
+$find = array('{firstname}', '{lastname}', '{company}', '{gstin}', '{mobile_no}', '{address_1}', '{address_2}', '{city}', '{postcode}', '{zone}', '{zone_code}', '{country}');
+
+$replace = array('firstname' => $order_info['payment_firstname'], 'lastname'  => $order_info['payment_lastname'], 'company'   => $order_info['payment_company'], 'gstin'   => '<br>' .'GSTIN : '. $extra_field['payment_address_gstin'], 'mobile_no'   => '<br>' .'Mobile : '. $extra_field['payment_address_country_code'] . ' ' . $extra_field['payment_address_mobile_no'], 'address_1' => $order_info['payment_address_1'], 'address_2' => $order_info['payment_address_2'], 'city'      => $order_info['payment_city'], 'postcode'  => $order_info['payment_postcode'], 'zone'      => $order_info['payment_zone'], 'zone_code' => $order_info['payment_zone_code'], 'country'   => $order_info['payment_country']);
+
+			}
+		
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+
+		<operation>
+			<search><![CDATA[
+        $data['shipping_address'] = str_replace(array("\r\n", "\r", "\n"), '<br />', preg_replace(array("/\s\s+/", "/\r\r+/", "/\n\n+/"), '<br />', trim(str_replace($find, $replace, $format))));
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+
+	if ($this->config->get('module_aps_extra_field_status')) {
+			$format = str_replace('{company}', '{company} {gstin}', $format);
+	$format = str_replace('{country}', '{country} {mobile_no}', $format);
+
+$find = array('{firstname}', '{lastname}', '{company}', '{gstin}', '{mobile_no}', '{address_1}', '{address_2}', '{city}', '{postcode}', '{zone}', '{zone_code}', '{country}');
+$replace = array('firstname' => $order_info['shipping_firstname'], 'lastname'  => $order_info['shipping_lastname'], 'company'   => $order_info['shipping_company'],'gstin'   => '<br>' .'GSTIN : '. $extra_field['shiping_address_gstin'],'mobile_no'   => '<br>' .'Mobile : '. $extra_field['shiping_address_country_code'] . ' ' . $extra_field['shiping_address_mobile_no'], 'address_1' => $order_info['shipping_address_1'], 'address_2' => $order_info['shipping_address_2'], 'city'      => $order_info['shipping_city'], 'postcode'  => $order_info['shipping_postcode'], 'zone'      => $order_info['shipping_zone'], 'zone_code' => $order_info['shipping_zone_code'], 'country'   => $order_info['shipping_country']);
+
+			}
+
+
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+
+	
+       
+					
+	</file>	
+
+<!-- admin side order -->
+	 <file path="admin/controller/sale/order.php">
+		<operation>
+			<search><![CDATA[
+        $data['text_ip_add'] = sprintf($this->language->get('text_ip_add'), $this->request->server['REMOTE_ADDR']);
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+$data['order_id'] = $order_info['order_id'];
+		$data['order_date'] = $order_info['date_added'];
+	$this->load->model('ledger/order');
+	$data['ledger_ids'] = $this->model_ledger_order->getLedgerIdByOrderId($order_id);
+	$data['invoice_data'] = $this->model_sale_order->getInvoice($order_id);
+	if ($this->config->get('module_aps_extra_field_status')) {
+				$data['module_aps_extra_field_status'] = $this->config->get('module_aps_extra_field_status');
+			}else {
+				$data['module_aps_extra_field_status'] = false;
+			}
+
+	$extra_field = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "apsinno_order_extra_fields WHERE order_id = " . (int)$order_info['order_id'])->row;
+
+		if(!$extra_field){
+			$extra_field['shiping_address_gstin'] ='';
+			$extra_field['shiping_address_country_code'] ='';
+			$extra_field['shiping_address_mobile_no'] ='';
+			$extra_field['payment_address_gstin'] ='';
+			$extra_field['payment_address_country_code'] ='';
+			$extra_field['payment_address_mobile_no'] ='';		
+		}
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+			<operation>
+			<search><![CDATA[
+        $data['text_order'] = sprintf($this->language->get('text_order'), $order_id);
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+			$data['order_id'] = $order_info['order_id'];
+			$data['order_date'] = $order_info['date_added'];
+			$this->load->model('ledger/order');
+			$data['ledger_ids'] = $this->model_ledger_order->getLedgerIdByOrderId($order_id);
+			$data['invoice_data'] = $this->model_sale_order->getInvoice($order_id);
+
+	if ($this->config->get('module_aps_extra_field_status')) {
+				$data['module_aps_extra_field_status'] = $this->config->get('module_aps_extra_field_status');
+			}else {
+				$data['module_aps_extra_field_status'] = false;
+			}
+	$extra_field = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "apsinno_order_extra_fields WHERE order_id = " . (int)$order_info['order_id'])->row;
+
+		if(!$extra_field){
+			$extra_field['shiping_address_gstin'] ='';
+			$extra_field['shiping_address_country_code'] ='';
+			$extra_field['shiping_address_mobile_no'] ='';
+			$extra_field['payment_address_gstin'] ='';
+			$extra_field['payment_address_country_code'] ='';
+			$extra_field['payment_address_mobile_no'] ='';		
+		}
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+
+					<operation>
+			<search><![CDATA[
+       if ($order_info && $order_info['shipping_code']) {
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+
+$data['order_id'] = $order_info['order_id'];
+		$data['order_date'] = $order_info['date_added'];
+		$this->load->model('ledger/order');		
+		$data['ledger_ids'] = $this->model_ledger_order->getLedgerIdByOrderId($order_id);
+		$data['invoice_data'] = $this->model_sale_order->getInvoice($order_id); 
+	if ($this->config->get('module_aps_extra_field_status')) {
+				$data['module_aps_extra_field_status'] = $this->config->get('module_aps_extra_field_status');
+			}else {
+				$data['module_aps_extra_field_status'] = false;
+			}
+	$extra_field = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "apsinno_order_extra_fields WHERE order_id = " . (int)$order_info['order_id'])->row;
+
+		if(!$extra_field){
+			$extra_field['shiping_address_gstin'] ='';
+			$extra_field['shiping_address_country_code'] ='';
+			$extra_field['shiping_address_mobile_no'] ='';
+			$extra_field['payment_address_gstin'] ='';
+			$extra_field['payment_address_country_code'] ='';
+			$extra_field['payment_address_mobile_no'] ='';		
+		}
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+
+
+		<operation>
+			<search><![CDATA[
+          $find = array(
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+	if ($this->config->get('module_aps_extra_field_status')) {
+			$format = str_replace('{company}', '{company} {gstin}', $format);
+			$format = str_replace('{country}', '{country} {mobile_no}', $format);
+			}
+			
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+
+		<operation>
+			<search><![CDATA[
+        '{address_1}',
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+	'{gstin}',
+			'{mobile_no}',
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+
+		<operation>
+			<search><![CDATA[
+         'address_1' => $order_info['payment_address_1'],
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+		'gstin'   => '<br>' .'GSTIN : '. $extra_field['payment_address_gstin'],
+		'mobile_no'   => '<br>' .'Mobile : '. $extra_field['payment_address_country_code'] . ' ' . $extra_field['payment_address_mobile_no'],
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+			<operation>
+			<search><![CDATA[
+        'address_1' => $order_info['shipping_address_1'],
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+		'gstin'   => '<br>' .'GSTIN : '. $extra_field['shiping_address_gstin'],
+		'mobile_no'   => '<br>' .'Mobile : '. $extra_field['shiping_address_country_code'] . ' ' . $extra_field['shiping_address_mobile_no'],
+// aps@prem		
+			]]></add>
+		</operation>
+
+
+
+			<operation>
+			<search><![CDATA[
+      if (!empty($order_info)) {
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+	// aps@prem
+	if ($this->config->get('module_aps_extra_field_status')) {
+				$data['module_aps_extra_field_status'] = $this->config->get('module_aps_extra_field_status');
+			}else {
+				$data['module_aps_extra_field_status'] = false;
+			}
+		$data['country_codes'] = $this->model_customer_customer->getCountryCode();
+
+			$data['extra_field'] = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "apsinno_order_extra_fields WHERE order_id = " . (int)$order_info['order_id'])->row;
+
+			if(!$data['extra_field']){
+				$data['extra_field']['shiping_address_gstin'] ='';
+				$data['extra_field']['shiping_address_country_code'] ='';
+				$data['extra_field']['shiping_address_mobile_no'] ='';
+				$data['extra_field']['payment_address_gstin'] ='';
+				$data['extra_field']['payment_address_country_code'] ='';
+				$data['extra_field']['payment_address_mobile_no'] ='';		
+			}
+		
+		
+		
+		// aps@prem		
+			]]></add>
+		</operation>
+
+
+		
+
+
+
+
+
+
+       
+					
+	</file>	
+
+
+
+
+	<file path="catalog/controller/api/payment.php">
+
+
+	<operation>
+			<search><![CDATA[
+     public function address() {
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+	// aps@prem
+	$this->load->language('account/address');
+// aps@prem		
+			]]></add>
+		</operation>
+
+		
+		<operation>
+			<search><![CDATA[
+       'zone_id',
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+	'payment_mobile_no', 
+// aps@prem		
+			]]></add>
+		</operation>
+
+		<operation>
+			<search><![CDATA[
+     if ((utf8_strlen($this->request->post['city']) < 2) || (utf8_strlen($this->request->post['city']) > 32)) {
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+		// aps@prem
+
+		if ($this->config->get('module_aps_extra_field_status')) {
+
+				if (isset($this->request->post['payment_gstin']) && $this->request->post['payment_gstin']  ) { 
+						
+				if(utf8_strlen($this->request->post['payment_gstin']) != 15) {
+					$json['error']['payment_gstin'] = $this->language->get('error_gstin');
+				} 
+
+			}
+			if (!isset($this->request->post['payment_mobile_no_country_code']) || $this->request->post['payment_mobile_no_country_code'] == '' || !is_numeric($this->request->post['payment_mobile_no_country_code'])) {
+				$json['error']['payment_mobile_no'] = $this->language->get('error_country_code');
+			}
+
+			if (!isset($this->request->post['payment_mobile_no']) || !$this->request->post['payment_mobile_no'] ) {
+				$json['error']['payment_mobile_no'] = $this->language->get('error_mobile_no');
+			}else{
+				if (isset($this->request->post['payment_mobile_no_country_code']) && $this->request->post['payment_mobile_no_country_code'] &&      $this->request->post['payment_mobile_no_country_code'] == '+91' ) {
+					if(!is_numeric($this->request->post['payment_mobile_no'])){
+						$json['error']['payment_mobile_no'] = $this->language->get('error_mobile_no_numeric');
+
+					}else if(utf8_strlen(trim($this->request->post['payment_mobile_no'])) != 10){
+						$json['error']['payment_mobile_no'] = $this->language->get('error_mobile_no_length');
+
+					}
+				}
+			}
+}
+// aps@prem	
+			]]></add>
+		</operation>
+
+			<operation>
+			<search><![CDATA[
+    'address_1'      => $this->request->post['address_1'],
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+	
+	'payment_gstin'      => $this->request->post['payment_gstin'],
+					'payment_mobile_no_country_code'      => $this->request->post['payment_mobile_no_country_code'],				
+					'payment_mobile_no'      => $this->request->post['payment_mobile_no'],
+	
+	// aps@prem	
+			]]></add>
+		</operation>
+
+       
+					
+	</file>	
+
+
+
+		<file path="catalog/controller/api/shipping.php">
+		<operation>
+			<search><![CDATA[
+      public function address() {
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+	// aps@prem
+		$this->load->language('account/address'); 
+// aps@prem		
+			]]></add>
+		</operation>
+
+		<operation>
+			<search><![CDATA[
+    'zone_id',
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+		// aps@prem
+			'shipping_mobile_no',
+// aps@prem	
+			]]></add>
+		</operation>
+
+			<operation>
+			<search><![CDATA[
+if ((utf8_strlen($this->request->post['city']) < 2) || (utf8_strlen($this->request->post['city']) > 32)) {
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+
+	if ($this->config->get('module_aps_extra_field_status')) {
+
+	if (isset($this->request->post['shipping_gstin']) && $this->request->post['shipping_gstin']  ) { 
+						
+				if(utf8_strlen($this->request->post['shipping_gstin']) != 15) {
+					$json['error']['shipping_gstin'] = $this->language->get('error_gstin');
+				} 
+
+			}
+			if (!isset($this->request->post['shipping_mobile_no_country_code']) || $this->request->post['shipping_mobile_no_country_code'] == '' || !is_numeric($this->request->post['shipping_mobile_no_country_code'])) {
+				$json['error']['shipping_mobile_no'] = $this->language->get('error_country_code');
+			}
+
+			if (!isset($this->request->post['shipping_mobile_no']) || !$this->request->post['shipping_mobile_no'] ) {
+				$json['error']['shipping_mobile_no'] = $this->language->get('error_mobile_no');
+			}else{
+				if (isset($this->request->post['shipping_mobile_no_country_code']) && $this->request->post['shipping_mobile_no_country_code'] &&      $this->request->post['shipping_mobile_no_country_code'] == '+91' ) {
+					if(!is_numeric($this->request->post['shipping_mobile_no'])){
+						$json['error']['shipping_mobile_no'] = $this->language->get('error_mobile_no_numeric');
+
+					}else if(utf8_strlen(trim($this->request->post['shipping_mobile_no'])) != 10){
+						$json['error']['shipping_mobile_no'] = $this->language->get('error_mobile_no_length');
+
+					}
+				}
+			}
+		}
+	// aps@prem	
+			]]></add>
+		</operation>
+
+       
+	   <operation>
+			<search><![CDATA[
+ 'address_1'      => $this->request->post['address_1'],
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+		// aps@prem
+			'shipping_gstin'      => $this->request->post['shipping_gstin'],
+					'shipping_mobile_no_country_code'      => $this->request->post['shipping_mobile_no_country_code'],				
+					'shipping_mobile_no'      => $this->request->post['shipping_mobile_no'],
+// aps@prem	
+			]]></add>
+		</operation>
+
+
+					
+	</file>	
+
+
+
+
+
+<file path="catalog/controller/api/order.php">
+
+
+	<operation>
+			<search><![CDATA[
+     $order_data['payment_custom_field'] = $this->session->data['payment_address']['custom_field'];
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+	// aps@prem
+$order_data['payment_gstin'] = $this->session->data['payment_address']['payment_gstin'];
+				$order_data['payment_mobile_no_country_code'] = $this->session->data['payment_address']['payment_mobile_no_country_code'];
+				$order_data['payment_mobile_no'] = $this->session->data['payment_address']['payment_mobile_no'];
+// aps@prem		
+			]]></add>
+		</operation>
+
+		
+		<operation>
+			<search><![CDATA[
+     $order_data['shipping_custom_field'] = $this->session->data['shipping_address']['custom_field'];
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+	// aps@prem
+		$order_data['shipping_gstin'] = $this->session->data['shipping_address']['shipping_gstin'];
+		$order_data['shipping_mobile_no_country_code'] = $this->session->data['shipping_address']['shipping_mobile_no_country_code'];
+		$order_data['shipping_mobile_no'] = $this->session->data['shipping_address']['shipping_mobile_no'];
+// aps@prem		
+			]]></add>
+		</operation>
+
+		<operation>
+			<search><![CDATA[
+     if ((utf8_strlen($this->request->post['city']) < 2) || (utf8_strlen($this->request->post['city']) > 32)) {
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+		// aps@prem
+
+		if ($this->config->get('module_aps_extra_field_status')) {
+
+				if (isset($this->request->post['payment_gstin']) && $this->request->post['payment_gstin']  ) { 
+						
+				if(utf8_strlen($this->request->post['payment_gstin']) != 15) {
+					$json['error']['payment_gstin'] = $this->language->get('error_gstin');
+				} 
+
+			}
+			if (!isset($this->request->post['payment_mobile_no_country_code']) || $this->request->post['payment_mobile_no_country_code'] == '' || !is_numeric($this->request->post['payment_mobile_no_country_code'])) {
+				$json['error']['payment_mobile_no'] = $this->language->get('error_country_code');
+			}
+
+			if (!isset($this->request->post['payment_mobile_no']) || !$this->request->post['payment_mobile_no'] ) {
+				$json['error']['payment_mobile_no'] = $this->language->get('error_mobile_no');
+			}else{
+				if (isset($this->request->post['payment_mobile_no_country_code']) && $this->request->post['payment_mobile_no_country_code'] &&      $this->request->post['payment_mobile_no_country_code'] == '+91' ) {
+					if(!is_numeric($this->request->post['payment_mobile_no'])){
+						$json['error']['payment_mobile_no'] = $this->language->get('error_mobile_no_numeric');
+
+					}else if(utf8_strlen(trim($this->request->post['payment_mobile_no'])) != 10){
+						$json['error']['payment_mobile_no'] = $this->language->get('error_mobile_no_length');
+
+					}
+				}
+			}
+}
+// aps@prem	
+			]]></add>
+		</operation>
+
+			<operation>
+			<search><![CDATA[
+    'address_1'      => $this->request->post['address_1'],
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+	
+	'payment_gstin'      => $this->request->post['payment_gstin'],
+					'payment_mobile_no_country_code'      => $this->request->post['payment_mobile_no_country_code'],				
+					'payment_mobile_no'      => $this->request->post['payment_mobile_no'],
+	
+	// aps@prem	
+			]]></add>
+		</operation>
+
+       
+					
+	</file>	
+
+
+
+<file path="catalog/controller/api/order.php">
+
+
+	<operation>
+			<search><![CDATA[
+   $_['entry_date_modified']        = 'Date Modified';
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+	// aps@prem
+$_['text_gstin']      = 'GSTIN :';
+		$_['text_mobile_no']      = 'Mobile :';
+		$_['error_gstin']      = 'Please provide valid GST number';
+		$_['error_gstin_length']      = 'GST number should be 15 digit';
+		
+		$_['error_country_code']      = 'Please select the country code';
+		$_['error_mobile_no']      = 'Please provide the valid mobile number';
+		$_['error_mobile_no_numeric']      = 'Mobile number should be numeric';
+		$_['error_mobile_no_length']      = 'Mobile number number should be 10 digit';
+// aps@prem		
+			]]></add>
+		</operation>
+
+		
+
+
+       
+					
+	</file>	
+
+
+
+
+  <file path="admin/model/customer/customer.php">
+		
+		 <operation>
+			<search><![CDATA[
+       public function deleteLoginAttempts($email) {
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	// aps@prem
+	public function getCountryCode() {
+		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "apsinno_country_code order by sort_order desc, country_name ASC")->rows;
+
+		return $query;
+	}
+
+	// aps@prem
+			]]></add>
+		</operation>
+
+
+          
+
+
+		
+					
+	</file>	
+
+<file path="admin/view/template/sale/order_invoice.twig">
+<operation>
+	<search><![CDATA[
+		<td style="width: 50%;"><b>{{ text_date_added }}</b> {{ order.date_added }}<br/>
+	]]></search>
+	<add position="replace" offset="8"><![CDATA[ 
+						<td style="width: 50%;">
+							{% if invoice_data.invoice_no %}
+								<b>{{ text_invoice_no }}</b> {{ invoice_data.invoice_no}}<br/>
+							{% endif %}
+
+							{% if invoice_data.invoice_date %}
+								<b>Invoice Date</b> {{ invoice_data.invoice_date }}<br/>
+							{% endif %}
+							
+							<b>{{ text_order_id }}</b> {{ order.order_id }}<br/>
+							<b>Order Date</b> {{ order_date }}<br/>
+
+							
+							<b>{{ text_payment_method }}</b> {{ order.payment_method }}<br/>
+							{% if order.shipping_method %}
+								<b>{{ text_shipping_method }}</b> {{ order.shipping_method }}<br/>
+							{% endif %}
+						</td>
+	]]>
+	</add>
+</operation>
+</file>
+
+<file path="admin/view/template/sale/order_shipping.twig">
+<operation>
+	<search><![CDATA[ 
+		<td style="width: 50%;"><b>{{ text_date_added }}</b> {{ order.date_added }}<br/>
+	]]></search>
+	<add position="replace" offset="8"><![CDATA[ 
+						<td style="width: 50%;">
+							{% if invoice_data.invoice_no %}
+								<b>{{ text_invoice_no }}</b> {{ invoice_data.invoice_no}}<br/>
+							{% endif %}
+
+							{% if invoice_data.invoice_date %}
+								<b>Invoice Date</b> {{ invoice_data.invoice_date }}<br/>
+							{% endif %}
+							
+							<b>{{ text_order_id }}</b> {{ order.order_id }}<br/>
+							<b>Order Date</b> {{ order_date }}<br/>
+							
+							{% if order.shipping_method %}
+								<b>{{ text_shipping_method }}</b> {{ order.shipping_method }}<br/>
+							{% endif %}
+						</td>
+	]]>
+	</add>
+</operation>
+</file>
+
+  <file path="admin/view/template/sale/order_form.twig">
+		
+		 <operation>
+			<search index="12" ><![CDATA[
+       <div class="form-group required">
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	
+{# ocmode #}
+
+
+{% if module_aps_extra_field_status %}
+        <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-payment-payment-gstin">{{ text_gstin }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_gstin" value="{{ extra_field['payment_address_gstin'] }}" id="input-payment-payment-gstin" class="form-control" />
+                </div>
+              </div>  
+
+  {% endif %}
+			  
+
+{# ocmode #}
+			]]></add>
+		</operation>
+
+
+		 <operation>
+			<search index="1" ><![CDATA[
+      {% for custom_field in custom_fields %}
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	
+{# ocmode #}
+			
+
+{% if module_aps_extra_field_status %}
+         
+
+  
+<div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-payment-payment-mobile_no">{{ text_mobile_no }}</label>
+                <div class="col-sm-10 country-code" style="display:flex">
+                 <div class="col-md-6 input-group">
+                          
+                       <span class="input-group-addon " style="
+    height: 34px;
+          min-width: 105px;
+           line-height: inherit;
+            
+">Country Code</span>
+
+                            <select name="payment_mobile_no_country_code" id="" class="form-control">
+                <option value="">{{ text_select }}</option>
+
+                {% for country_code in country_codes %}
+                  {% if country_code.country_code == extra_field['payment_address_country_code'] %}
+
+                <option value="{{ country_code.country_code }}" selected="selected">{{country_code.country_name }} {{ country_code.country_code }}</option>
+
+                  {% else %}
+
+                <option value="{{ country_code.country_code }}">{{country_code.country_name }} ( {{ country_code.country_code }} )</option>
+
+                  {% endif %}
+                {% endfor %}
+
+              </select>
+           
+                           </div>
+
+                          <div class="col-md-6 input-group" id="error-payment">
+                    
+                             <input type="text" name="payment_mobile_no"  style="padding-right: 40px;" value="{{ extra_field['payment_address_mobile_no']}}" placeholder="{{ mobile_no }}" id="input-payment-payment-mobile_no" class="form-control" />
+               
+                          </div>
+            
+                </div>
+              </div>
+  {% endif %}
+
+
+{# ocmode #}
+			]]></add>
+		</operation>
+
+
+
+ <operation>
+			<search index="19" ><![CDATA[
+      <div class="form-group required">
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	
+{# ocmode #}
+
+
+{% if module_aps_extra_field_status %}
+       <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-shipping-shipping-gstin">{{ text_gstin }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="shipping_gstin" value="{{ extra_field['shiping_address_gstin'] }}" id="input-shipping-shipping-gstin" class="form-control" />
+                </div>
+              </div>   
+
+  {% endif %}
+			   
+
+{# ocmode #}
+			]]></add>
+		</operation>
+
+
+		 <operation>
+			<search index="2" ><![CDATA[
+      {% for custom_field in custom_fields %}
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	
+{# ocmode #}
+			
+		
+
+{% if module_aps_extra_field_status %}
+      
+<div class="form-group required">
+                <label class="col-sm-2 control-label" for="input-shipping-shipping-mobile-no">{{ text_mobile_no }}</label>
+                <div class="col-sm-10 country-code" style="display:flex">
+                 <div class="col-md-6 input-group">
+                          
+                       <span class="input-group-addon " style="
+    height: 34px;
+          min-width: 105px;
+           line-height: inherit;
+            
+">Country Code</span>
+
+                            <select name="shipping_mobile_no_country_code" id="input-shipping-shipping-mobile-no" class="form-control">
+                <option value="">{{ text_select }}</option>
+
+                {% for country_code in country_codes %}
+                  {% if country_code.country_code == extra_field['shiping_address_country_code'] %}
+
+                <option value="{{ country_code.country_code }}" selected="selected">{{country_code.country_name }} {{ country_code.country_code }}</option>
+
+                  {% else %}
+
+                <option value="{{ country_code.country_code }}">{{country_code.country_name }} ( {{ country_code.country_code }} )</option>
+
+                  {% endif %}
+                {% endfor %}
+
+              </select>
+           
+                           </div>
+
+                          <div class="col-md-6 input-group" id="error-shipping" >
+                    
+                             <input type="text" name="shipping_mobile_no"  style="padding-right: 40px;" value="{{ extra_field['shiping_address_mobile_no']}}" placeholder="{{ mobile_no }}" id="input-shipping-shipping-mobile_no" class="form-control" />
+               
+                          </div>
+            
+                </div>
+              </div>
+   
+
+  {% endif %}
+
+
+{# ocmode #}
+			]]></add>
+		</operation>	
+					
+	</file>	
+
+
+
+
+  <file path="catalog/view/theme/journal3/template/checkout/payment_address.twig">
+		
+	
+	     <operation>
+			<search index="0"><![CDATA[
+     <select name="address_id" class="form-control">
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+{# 
+			]]></add>
+		</operation>	
+
+
+		  <operation>
+			<search index="0" ><![CDATA[
+       </select>
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+#}
+
+
+<div class="row" style="width: 99.9%;margin-left: 5px;display: flex;">
+   
+   
+   {% for address in addresses %}
+
+   <div class="box" style="
+    border: 1px solid #ccc;
+    text-transform: capitalize;
+    padding: 10px;
+    margin: 10px 0px;
+    margin-left:10px;
+    text-align: center;
+    position:relative;
+">
+	 <div class="radio"><label style="margin-bottom:10px;line-height: 13px;">
+	 
+  {% if address['address_id'] == address_id %}
+      <input name="address_id" type="radio" value="{{ address.address_id }}" checked="checked">{{ address.firstname }} {{ address.lastname }}, </br> </br>  {{ address.address_1 }},  </br> </br> {{ address.city }},  </br> </br>  {{ address.zone }}, </br> </br>  {{ address.country }}  </br> </br>  <b>{{ address.mobile_no_country_code }} {{ address.mobile_no }} </b> </br> </br>    <b>{{ address.gstin }}</b>
+			  
+      {% else %}
+      <input name="address_id" type="radio"  value="{{ address.address_id }}">{{ address.firstname }} {{ address.lastname }},  </br> </br> {{ address.address_1 }},  </br> </br> {{ address.city }},  </br> </br>{{ address.zone }},  </br> </br>{{ address.country }}  </br> </br> <b>{{ address.mobile_no_country_code }} {{ address.mobile_no }} </b> </br> </br>    <b>{{ address.gstin }}</b>
+      {% endif %}
+	  </label></div>
+ <div style="margin-top:10px;"> <a href="{{ address_edit }}" style="
+ 
+    position: absolute;
+    right: 5px;
+    bottom: 0;
+    color: blue;
+    font-size: 20px;
+"><i class="fa fa-edit"></i></a></div>
+
+  </div>
+      {% endfor %}
+
+  
+  </div>
+
+			]]></add>
+		</operation>	
+
+
+
+		  <operation>
+			<search index="2" ><![CDATA[
+       <div class="form-group required">
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+{# ocmod #}
+
+{% if module_aps_extra_field_status %}
+        <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-payment-payment-gstin">{{ text_gstin }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_gstin" value="{{ extra_field['payment_address_gstin'] }}" id="input-payment-payment-gstin" class="form-control" />
+                </div>
+              </div>  
+
+  {% endif %}
+{# ocmod #}
+
+			]]></add>
+		</operation>	
+
+
+  <operation>
+			<search index="0" ><![CDATA[
+      {% for custom_field in custom_fields %}
+            ]]></search>
+			<add position="before"><![CDATA[
+      {# ocmod #}      
+{% if module_aps_extra_field_status %}
+          
+
+            <div class="form-group required">
+            <label class="col-md-2 control-label" for="input-payment-payment-mobile_no">{{ text_mobile_no }}</label>
+       
+
+               <div class="col-md-10 " style="max-width: 500px;">
+                          <div class="col-md-6 input-group">
+                          
+                       <span class="input-group-addon " style="
+    height: 34px;
+          min-width: 105px;
+           line-height: inherit;
+            
+">Country Code</span>
+
+                            <select name="payment_mobile_no_country_code" id="input-country" class="form-control">
+                <option value="">{{ text_select }}</option>
+
+                {% for country_code in country_codes %}
+                  {% if country_code.country_code == extra_field['payment_address_country_code'] %}
+
+                <option value="{{ country_code.country_code }}" selected="selected">{{country_code.country_name }} {{ country_code.country_code }}</option>
+
+                  {% else %}
+
+                <option value="{{ country_code.country_code }}">{{country_code.country_name }} ( {{ country_code.country_code }} )</option>
+
+                  {% endif %}
+                {% endfor %}
+
+              </select>
+           
+                           </div>
+
+                          <div class="col-md-6 input-group" id="error-payment" >
+                    
+                             <input type="text" name="payment_mobile_no"  style="padding-right: 40px;" value="{{ extra_field['payment_address_mobile_no']}}" placeholder="{{ mobile_no }}" id="input-payment-payment-mobile_no" class="form-control" />
+               
+                          </div>
+                          
+           
+              </div>
+
+
+              
+          </div>
+
+          
+       {% endif %}	
+	   {# ocmod #}
+
+			]]></add>
+		</operation>	
+
+
+		 
+					
+	</file>	
+
+
+
+	<file path="catalog/view/theme/journal3/template/checkout/shipping_address.twig">
+		
+	
+	       <operation>
+			<search index="0"><![CDATA[
+     <select name="address_id" class="form-control">
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+{# 
+			]]></add>
+		</operation>	
+
+
+		  <operation>
+			<search index="0" ><![CDATA[
+       </select>
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+#}
+
+
+<div class="row" style="width: 99.9%;margin-left: 5px;display: flex;">
+   
+   
+   {% for address in addresses %}
+
+   <div class="box" style="
+    border: 1px solid #ccc;
+    text-transform: capitalize;
+    padding: 10px;
+    margin: 10px 0px;
+    margin-left:10px;
+    text-align: center;
+    position:relative;
+">
+	 <div class="radio"><label style="margin-bottom:10px;line-height: 13px;">
+	 
+       {% if address['address_id'] == address_id %}
+      <input name="address_id" type="radio" value="{{ address.address_id }}" checked="checked">{{ address.firstname }} {{ address.lastname }}, </br> </br>  {{ address.address_1 }},  </br> </br> {{ address.city }},  </br> </br>  {{ address.zone }}, </br> </br>  {{ address.country }}  </br> </br> <b>{{ address.mobile_no_country_code }} {{ address.mobile_no }} </b> </br> </br>    <b>{{ address.gstin }}</b>
+			  
+      {% else %}
+      <input name="address_id" type="radio"  value="{{ address.address_id }}">{{ address.firstname }} {{ address.lastname }},  </br> </br> {{ address.address_1 }},  </br> </br> {{ address.city }},  </br> </br>{{ address.zone }},  </br> </br>{{ address.country }}  </br> </br><b>{{ address.mobile_no_country_code }} {{ address.mobile_no }} </b> </br> </br>    <b>{{ address.gstin }}</b>
+			  
+      {% endif %}
+	  </label></div>
+ <div style="margin-top:10px;"> <a href="{{ address_edit }}" style="
+ 
+    position: absolute;
+    right: 5px;
+    bottom: 0;
+    color: blue;
+    font-size: 20px;
+"><i class="fa fa-edit"></i></a></div>
+
+  </div>
+      {% endfor %}
+
+  
+  </div>
+
+			]]></add>
+		</operation>	
+
+
+       <operation>
+			<search index="2" ><![CDATA[
+      <div class="form-group required">
+            ]]></search>
+			<add position="before"><![CDATA[
+            {# ocmode #}
+
+
+{% if module_aps_extra_field_status %}
+       <div class="form-group">
+                <label class="col-sm-2 control-label" for="input-shipping-shipping-gstin">{{ text_gstin }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="shipping_gstin" placeholder="{{ text_gstin }}" value="{{ extra_field['shiping_address_gstin'] }}" id="input-shipping-shipping-gstin" class="form-control" />
+                </div>
+              </div>   
+
+  {% endif %}
+			   
+
+{# ocmode #}
+
+			]]></add>
+		</operation>	
+
+
+		  <operation>
+			<search ><![CDATA[
+     {% for custom_field in custom_fields %}
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+	{% if module_aps_extra_field_status %}
+          
+
+            <div class="form-group required">
+            <label class="col-md-2 control-label" for="input-shipping-shipping-mobile-no">{{ text_mobile_no }}</label>
+       
+
+               <div class="col-md-10 " style="max-width: 500px;">
+                          <div class="col-md-6 input-group">
+                          
+                       <span class="input-group-addon " style="
+    height: 34px;
+          min-width: 105px;
+           line-height: inherit;
+            
+">Country Code</span>
+
+                            <select name="shipping_mobile_no_country_code" id="input-shipping-shipping-mobile-no" class="form-control">
+                <option value="">{{ text_select }}</option>
+
+                {% for country_code in country_codes %}
+                   {% if country_code.country_code == extra_field['shiping_address_country_code'] %}
+
+                <option value="{{ country_code.country_code }}" selected="selected">{{country_code.country_name }} {{ country_code.country_code }}</option>
+
+                  {% else %}
+
+                <option value="{{ country_code.country_code }}">{{country_code.country_name }} ( {{ country_code.country_code }} )</option>
+
+                  {% endif %}
+                {% endfor %}
+
+              </select>
+           
+                           </div>
+
+                          <div class="col-md-6 input-group" id="error-shipping">
+                    
+                             <input type="text" name="shipping_mobile_no"   style="padding-right: 40px;" value="{{ extra_field['shiping_address_mobile_no']}}" placeholder="{{ mobile_no }}" id="input-shipping-shipping-mobile_no" class="form-control" />
+               
+                          </div>
+           
+              </div>
+
+
+              
+          </div>
+
+          
+       {% endif %}
+	
+			]]></add>
+		</operation>	
+
+
+		 
+					
+	</file>	
+
+
+<!-- for checkout new payment address time -->
+
+	<file path="catalog/language/en-gb/checkout/checkout.php">
+		
+	
+	       <operation>
+			<search ><![CDATA[
+    // Error
+            ]]></search>
+			<add position="before"><![CDATA[
+            
+// aps@prem
+$_['text_gstin']      = 'GSTIN :';
+$_['text_mobile_no']      = 'Mobile :';
+$_['error_gstin']      = 'Please provide valid GST number';
+$_['error_gstin_length']      = 'GST number should be 15 digit';
+
+$_['error_country_code']      = 'Please select the country code';
+$_['error_mobile_no']      = 'Please provide the valid mobile number';
+$_['error_mobile_no_numeric']      = 'Mobile number should be numeric';
+$_['error_mobile_no_length']      = 'Mobile number number should be 10 digit';
+// aps@prem	
+
+			]]></add>
+		</operation>	
+					
+	</file>	
+
+
+<file path="catalog/controller/checkout/payment_address.php">
+		
+	
+	       <operation>
+			<search ><![CDATA[
+$this->response->setOutput($this->load->view('checkout/payment_address', $data));
+            ]]></search>
+			<add position="before"><![CDATA[
+       // aps@prem
+		if ($this->config->get('module_aps_extra_field_status')) {
+			$data['module_aps_extra_field_status'] = $this->config->get('module_aps_extra_field_status');
+		}else {
+			$data['module_aps_extra_field_status'] = false;
+		}
+	
+		$data['country_codes'] = $this->model_account_address->getCountryCode();
+		$data['address_edit'] = $this->url->link('account/address/edit&address_id='.$data['address_id']);
+
+		
+		
+
+		
+		// aps@prem	
+
+			]]></add>
+		</operation>	
+
+
+		       <operation>
+			<search index="2" ><![CDATA[
+if (!$json) {
+            ]]></search>
+			<add position="before"><![CDATA[
+ // aps@prem
+
+ if ($this->config->get('module_aps_extra_field_status')) {
+					if (isset($this->request->post['payment_gstin']) && $this->request->post['payment_gstin']  ) { 
+						
+						if(utf8_strlen($this->request->post['payment_gstin']) != 15) {
+							$json['error']['payment_gstin'] = $this->language->get('error_gstin');
+						} 
+		
+					}
+					if (!isset($this->request->post['payment_mobile_no_country_code']) || $this->request->post['payment_mobile_no_country_code'] == '' || !is_numeric($this->request->post['payment_mobile_no_country_code'])) {
+						$json['error']['payment_mobile_no'] = $this->language->get('error_country_code');
+					}
+		
+					if (!isset($this->request->post['payment_mobile_no']) || !$this->request->post['payment_mobile_no'] ) {
+						$json['error']['payment_mobile_no'] = $this->language->get('error_mobile_no');
+					}else{
+						if (isset($this->request->post['payment_mobile_no_country_code']) && $this->request->post['payment_mobile_no_country_code'] &&      $this->request->post['payment_mobile_no_country_code'] == '+91' ) {
+							if(!is_numeric($this->request->post['payment_mobile_no'])){
+								$json['error']['payment_mobile_no'] = $this->language->get('error_mobile_no_numeric');
+		
+							}else if(utf8_strlen(trim($this->request->post['payment_mobile_no'])) != 10){
+								$json['error']['payment_mobile_no'] = $this->language->get('error_mobile_no_length');
+		
+							}
+						}
+					}
+		}
+		// aps@prem	
+
+			]]></add>
+		</operation>
+
+		   <operation>
+			<search ><![CDATA[
+$address_id = $this->model_account_address->addAddress($this->customer->getId(), $this->request->post);
+            ]]></search>
+			<add position="before"><![CDATA[
+
+// aps@prem	
+if ($this->config->get('module_aps_extra_field_status')) {
+					$this->request->post['gstin'] = $this->request->post['payment_gstin'];
+					$this->request->post['mobile_no_country_code'] = $this->request->post['payment_mobile_no_country_code'];
+					$this->request->post['mobile_no'] = $this->request->post['payment_mobile_no'];
+					}
+                 // aps@prem
+
+
+			]]></add>
+		</operation>
+
+
+		 <operation>
+			<search ><![CDATA[
+public function save() {
+            ]]></search>
+			<add position="before"><![CDATA[
+
+// aps@prem	
+   public function checkmobileno() {
+		$mobile_check['mobile_check'] = '0';
+
+		$mobile_no = $this->db->query("SELECT  mobile_no  FROM  robomart_v3_apsinno_address_extra_fields where address_id = ". $_POST['address_id'])->row;
+		if( isset($mobile_no['mobile_no']) && $mobile_no['mobile_no'] ){
+			$mobile_check['mobile_check'] = '1';
+		}else{
+			$mobile_check['mobile_check'] = '0';
+		}
+
+		$mobile_check['address_url'] = $this->url->link('account/address/edit&address_id='.$_POST['address_id']);
+
+		print_r( json_encode($mobile_check) );
+
+	}
+                 // aps@prem
+
+
+			]]></add>
+		</operation>
+
+
+					
+	</file>	
+
+
+<!-- for checkout new shipping address time -->
+
+<file path="catalog/controller/checkout/shipping_address.php">
+		
+	
+	       <operation>
+			<search ><![CDATA[
+$this->response->setOutput($this->load->view('checkout/shipping_address', $data));
+            ]]></search>
+			<add position="before"><![CDATA[
+       // aps@prem
+		 if ($this->config->get('module_aps_extra_field_status')) {
+			$data['module_aps_extra_field_status'] = $this->config->get('module_aps_extra_field_status');
+		}else {
+			$data['module_aps_extra_field_status'] = false;
+		}
+	
+		$data['country_codes'] = $this->model_account_address->getCountryCode();
+		$data['address_edit'] = $this->url->link('account/address/edit&address_id='.$data['address_id']);
+
+		
+		// aps@prem	
+
+			]]></add>
+		</operation>	
+
+
+		       <operation>
+			<search index="2" ><![CDATA[
+if (!$json) {
+            ]]></search>
+			<add position="before"><![CDATA[
+ // aps@prem
+
+ if ($this->config->get('module_aps_extra_field_status')) {
+
+	if (isset($this->request->post['shipping_gstin']) && $this->request->post['shipping_gstin']  ) { 
+						
+				if(utf8_strlen($this->request->post['shipping_gstin']) != 15) {
+					$json['error']['shipping_gstin'] = $this->language->get('error_gstin');
+				} 
+
+			}
+			if (!isset($this->request->post['shipping_mobile_no_country_code']) || $this->request->post['shipping_mobile_no_country_code'] == '' || !is_numeric($this->request->post['shipping_mobile_no_country_code'])) {
+				$json['error']['shipping_mobile_no'] = $this->language->get('error_country_code');
+			}
+
+			if (!isset($this->request->post['shipping_mobile_no']) || !$this->request->post['shipping_mobile_no'] ) {
+				$json['error']['shipping_mobile_no'] = $this->language->get('error_mobile_no');
+			}else{
+				if (isset($this->request->post['shipping_mobile_no_country_code']) && $this->request->post['shipping_mobile_no_country_code'] &&      $this->request->post['shipping_mobile_no_country_code'] == '+91' ) {
+					if(!is_numeric($this->request->post['shipping_mobile_no'])){
+						$json['error']['shipping_mobile_no'] = $this->language->get('error_mobile_no_numeric');
+
+					}else if(utf8_strlen(trim($this->request->post['shipping_mobile_no'])) != 10){
+						$json['error']['shipping_mobile_no'] = $this->language->get('error_mobile_no_length');
+
+					}
+				}
+			}
+		}
+	// aps@prem	
+			]]></add>
+		</operation>
+
+		   <operation>
+			<search ><![CDATA[
+$address_id = $this->model_account_address->addAddress($this->customer->getId(), $this->request->post);
+            ]]></search>
+			<add position="before"><![CDATA[
+	// aps@prem	
+	if ($this->config->get('module_aps_extra_field_status')) {
+					$this->request->post['gstin'] = $this->request->post['shipping_gstin'];
+					$this->request->post['mobile_no_country_code'] = $this->request->post['shipping_mobile_no_country_code'];
+					$this->request->post['mobile_no'] = $this->request->post['shipping_mobile_no'];
+                
+				}
+				 // aps@prem
+
+
+			]]></add>
+		</operation>
+					
+	</file>	
+
+
+
+<!-- for razorpay payment -->
+
+<file path="catalog/controller/extension/payment/razorpay.php">
+		
+	
+
+	  <operation>
+			<search ><![CDATA[
+require_once __DIR__.'/../../../../system/library/razorpay/razorpay-sdk/Razorpay.php';
+            ]]></search>
+			<add position="replace"><![CDATA[
+       // aps@prem
+		      require_once DIR_SYSTEM.'library/razorpay/razorpay-sdk/Razorpay.php';
+		
+		// aps@prem	
+
+			]]></add>
+		</operation>	
+
+		  <operation>
+			<search ><![CDATA[
+require_once __DIR__.'/../../../../system/library/razorpay/razorpay-lib/createwebhook.php';
+            ]]></search>
+			<add position="replace"><![CDATA[
+       // aps@prem
+		    require_once DIR_SYSTEM.'library/razorpay/razorpay-lib/createwebhook.php';
+		
+		// aps@prem	
+
+			]]></add>
+		</operation>	
+
+
+
+	       <operation>
+			<search ><![CDATA[
+$this->api->utility->verifyPaymentSignature($attributes);
+            ]]></search>
+			<add position="before"><![CDATA[
+       // aps@prem
+		        $aps_payment['razorpay_payment_id'] = $this->request->request['razorpay_payment_id'];
+                $aps_payment['order_id'] = $this->session->data['order_id'];
+                $aps_payment['customer_id'] =  $this->customer->getId();
+                $aps_payment['total'] =  $order_info['total'];
+                $this->load->model('aps_razorpay/aps_razorpay');
+                $this->model_aps_razorpay_aps_razorpay->addPayment($aps_payment);
+		
+		// aps@prem	
+
+			]]></add>
+		</operation>	
+
+
+
+  <operation>
+			<search ><![CDATA[
+$this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id, true);
+            ]]></search>
+			<add position="replace"><![CDATA[
+       // aps@prem
+		   if($this->model_aps_razorpay_aps_razorpay->confirmPayment($this->session->data['order_id'])){
+                    $this->model_checkout_order->addOrderHistory($merchant_order_id, $this->config->get('payment_razorpay_order_status_id'), 'Payment Successful. Razorpay Payment Id:' . $razorpay_payment_id, true);
+                }
+		
+		// aps@prem	
+
+			]]></add>
+		</operation>	
+
+
+					
+	</file>	
+
+
+	<file path="catalog/controller/api/order.php">
+		
+	
+	       <operation>
+			<search ><![CDATA[
+$this->model_checkout_order->addOrderHistory($order_id, $this->request->post['order_status_id'], $this->request->post['comment'], $this->request->post['notify'], $this->request->post['override']);
+            ]]></search>
+			<add position="replace"><![CDATA[
+       // aps@prem
+		  $this->load->model('aps_razorpay/aps_razorpay');               
+			    if($this->model_aps_razorpay_aps_razorpay->confirmPayment($order_id)){
+					$this->model_checkout_order->addOrderHistory($order_id, $this->request->post['order_status_id'], $this->request->post['comment'], $this->request->post['notify'], $this->request->post['override']);
+				}else{
+					$json['error'] = $this->language->get('error_unsettled');
+				}
+		
+		// aps@prem	
+
+			]]></add>
+		</operation>	
+
+
+
+  <operation>
+			<search index="4"><![CDATA[
+$json['success'] = $this->language->get('text_success');
+            ]]></search>
+			<add position="before"><![CDATA[
+       // aps@prem
+		  if($this->model_aps_razorpay_aps_razorpay->confirmPayment($order_id)){
+                   
+		
+		
+
+			]]></add>
+		</operation>	
+
+
+
+  <operation>
+			<search index="4"><![CDATA[
+$json['success'] = $this->language->get('text_success');
+            ]]></search>
+			<add position="after"><![CDATA[
+       
+		  }
+                   
+		// aps@prem
+		
+
+			]]></add>
+		</operation>	
+
+
+					
+	</file>	
+
+	<file path="catalog/language/en-gb/api/order.php">
+		
+	
+	    <operation>
+			<search ><![CDATA[
+$_['error_not_found']        = 'Warning: Order could not be found!';
+            ]]></search>
+			<add position="after"><![CDATA[
+       // aps@prem
+		$_['error_unsettled']        = 'Warning: you cannot change the order status order payment is unsetlled!';
+		// aps@prem	
+
+			]]></add>
+		</operation>	
+					
+	</file>	
+
+	<!-- razorpay payment for admin view -->
+
+
+	<file path="admin/controller/common/column_left.php">
+		
+	
+	<operation>
+			<search ><![CDATA[
+$catalog = array();
+            ]]></search>
+			<add position="before"><![CDATA[
+       // aps@prem
+	
+$this->load->language('extension/module/aps_extra_field');
+$catalog = array();
+
+
+	$catalog[] = array(
+		'name'	   => $this->language->get('entry_payment_razorpay'),
+		'href'     => $this->url->link('aps_razorpay/aps_razorpay', 'user_token=' . $this->session->data['user_token'], true),
+		'children' => array()
+	);
+
+
+
+	$catalog[] = array(
+		'name'	   => $this->language->get('entry_neft'),
+		'href'     => $this->url->link('neft/neft', 'user_token=' . $this->session->data['user_token'], true),
+		'children' => array()
+	);
+
+	$catalog[] = array(
+		'name'	   => 'Ledger Payment',
+		'href'     => $this->url->link('ledger/ledger', 'user_token=' . $this->session->data['user_token'], true),
+		'children' => array()
+	);
+
+	$catalog[] = array(
+		'name'	   => 'Orders Payment',
+		'href'     => $this->url->link('ledger/order', 'user_token=' . $this->session->data['user_token'], true),
+		'children' => array()
+	);
+
+if ($catalog) {
+	$data['menus'][] = array(
+		'id'       => 'menu-catalog',
+		'icon'	   => 'fa fa-inr',
+		'name'	   => $this->language->get('entry_payment'),
+		'href'     => '',
+		'children' => $catalog
+	);
+}
+
+		// aps@prem	
+
+			]]></add>
+		</operation>	
+
+
+	
+					
+	</file>	
+
+
+	<file path="catalog/language/en-gb/api/order.php">
+		
+
+	    <operation>
+			<search ><![CDATA[
+$_['error_not_found']        = 'Warning: Order could not be found!';
+            ]]></search>
+			<add position="after"><![CDATA[
+       // aps@prem
+		$_['error_unsettled']        = 'Warning: you cannot change the order status order payment is unsetlled!';
+		// aps@prem	
+
+			]]></add>
+		</operation>	
+					
+	</file>	
+
+	<!-- mysqli changes -->
+
+	<file path="system/library/db/mysqli.php">
+		
+	
+	    <operation>
+			<search ><![CDATA[
+public function __destruct() {
+            ]]></search>
+			<add position="before"><![CDATA[
+       // aps@prem
+	
+
+		public function beginTransaction() {
+        // Start transaction
+        $this->connection->begin_transaction();
+    }
+
+	public function commitTransaction() {
+        // Commit transaction
+        $this->connection->commit();
+    }
+
+	public function rollbackTransaction() {
+        // Rollback transaction
+        $this->connection->rollback();
+    }
+
+
+		// aps@prem	
+
+			]]></add>
+		</operation>	
+					
+	</file>	
+
+
+
+	<file path="system/library/db.php">
+		
+	
+	    <operation>
+			<search ><![CDATA[
+public function connected() {
+            ]]></search>
+			<add position="before"><![CDATA[
+       // aps@prem
+			public function beginTransaction() {
+		return $this->adaptor->beginTransaction();
+	}
+	public function commitTransaction() {
+		return $this->adaptor->commitTransaction();
+	}
+	public function rollbackTransaction() {
+		return $this->adaptor->rollbackTransaction();
+	}
+		// aps@prem	
+
+			]]></add>
+		</operation>	
+					
+	</file>	
+
+
+	<!-- Neft payment  -->
+
+<!-- extra -->
+		<file path="admin/view/template/sale/order_info.twig">
+		
+	
+	    <operation>
+			<search index="0"><![CDATA[
+{% for tab in tabs %}
+            ]]></search>
+			<add position="before"><![CDATA[
+         <li>
+            <a href="#order-payment" data-toggle="tab">{{ column_order_payment }}</a>
+          </li>
+
+			]]></add>
+		</operation>	
+
+
+		   <operation>
+			<search index="1"><![CDATA[
+{% for tab in tabs %}
+            ]]></search>
+			<add position="before"><![CDATA[
+        <div class="tab-pane" id="order-payment">
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <td >ledger Id</td>
+                    <td >Order Id</td>
+                    <td >Trasaction Id</td>
+                    <td >Transaction Log Id</td>
+                    <td >Payment Processor</td>
+                    <td >Payment Amount</td>
+                    <td >Payment Date</td>
+                    <td >Reference no.</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if ledger_ids %}
+                  {% for ledger_id in ledger_ids %}
+                  <tr>
+                    <td>{{ ledger_id.ledger_id}}</td>
+                    <td>{{ ledger_id.order_id}}</td>
+                    <td>{{ ledger_id.transaction_id}}</td>
+                    <td>{{ ledger_id.transaction_log_id}}</td>
+                    <td>{{ ledger_id.processor_type}}</td>
+                    <td>{{ ledger_id.amount}}</td>
+                    <td>{{ ledger_id.payment.payment_date}}</td>
+                    <td>{{ ledger_id.payment.payment_amount}}</td>
+                   </tr>
+                  {% endfor %}
+                {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+			]]></add>
+		</operation>	
+
+
+				   <operation>
+			<search ><![CDATA[
+<td id="invoice" class="text-right">{{ invoice_no }}</td>
+            ]]></search>
+			<add position="replace"><![CDATA[
+ <td id="invoice" class="text-right">{{ invoice_data.invoice_no }}</td>
+			]]></add>
+		</operation>	
+          
+          
+				   <operation>
+			<search index="1"><![CDATA[
+<tbody>
+            ]]></search>
+			<add position="after"><![CDATA[
+ {#
+			]]></add>
+		</operation>	
+            
+
+		 <operation>
+			<search index="9"><![CDATA[
+ <tr>
+            ]]></search>
+			<add position="before"><![CDATA[
+#}
+            <tr>
+                <td>{{ text_invoice }}</td>
+                <td id="invoice" class="text-right">{{ invoice_data.invoice_no }}</td>
+                <td style="width: 1%;" class="text-center">
+                  {% if not invoice_no %}
+                    <button id="button-invoice" data-loading-text="{{ text_loading }}" data-toggle="tooltip" title="{{ button_generate }}" class="btn btn-success btn-xs"><i class="fa fa-cog"></i></button>
+                  {% else %}
+                    <button disabled="disabled" class="btn btn-success btn-xs"><i class="fa fa-refresh"></i></button>
+                  {% endif %}
+                </td>
+              </tr>
+
+               <tr>
+                <td>Invoice Date</td>
+                <td id="invoice-date" class="text-right">{{  invoice_data.invoice_date }}</td>
+              
+              </tr>
+
+  <tr>
+                <td>Order Id</td>
+                <td id="order_id" class="text-right">{{ order_id }}</td>
+               
+              </tr>
+
+                <tr>
+                <td>Order Date</td>
+                <td id="order_date" class="text-right">{{  order_date }}</td>
+              
+              </tr>
+			]]></add>
+		</operation>	
+
+
+     <operation>
+			<search ><![CDATA[
+$('#invoice').html(json['invoice_no']);
+            ]]></search>
+			<add position="replace"><![CDATA[
+  $('#invoice').html(json['invoice_no']['invoice_no']);
+          $('#invoice-date').html(json['invoice_no']['invoice_date']);
+
+		
+			]]></add>
+		</operation>
+
+
+
+					
+	</file>	
+
+
+	<file path="admin/model/sale/order.php">
+		
+	
+	 <operation>
+			<search ><![CDATA[
+public function createInvoiceNo($order_id) {
+            ]]></search>
+			<add position="before"><![CDATA[
+
+				public function getInvoice($order_id) {
+	     $return_invoice = $this->db->query("SELECT * FROM " . DB_PREFIX . "apsinno_invoice_data WHERE order_id = " .$order_id)->row;
+		
+		return $return_invoice;
+		
+	
+	}
+
+	public function createInvoiceNo($order_id) {
+		$order_info = $this->getOrder($order_id);
+		
+		$invoice_check = $this->db->query("SELECT invoice_no FROM " . DB_PREFIX . "apsinno_invoice_data 
+		WHERE order_id = " .$order_id)->row;		
+
+		$prefix = $this->db->query("SELECT prefix FROM " . DB_PREFIX . "apsinno_order_prefix 
+		WHERE store_id = " .	$order_info['store_id'] )->row;	
+
+		if($order_info && ( !isset($invoice_check['invoice_no']) || !$invoice_check['invoice_no'] )){
+
+			$this->db->query("INSERT INTO " . DB_PREFIX . "apsinno_invoice_data 
+			set order_id = '". $order_id ."',
+			prefix = '".$prefix['prefix'] ."',
+			invoice_no = '',		
+			invoice_date= CURRENT_TIMESTAMP");
+
+			$invoice_id = $this->db->getLastId();
+             
+			$created_invoice = $prefix['prefix'] .  $invoice_id;
+			$this->db->query("UPDATE " . DB_PREFIX . "apsinno_invoice_data set invoice_no = '". $created_invoice ."' where order_id='". $order_id ."'");
+			$this->db->query("UPDATE `" . DB_PREFIX . "order` SET invoice_no = '" . $created_invoice. "', invoice_prefix = '" .$prefix['prefix']  . "' WHERE order_id = '" . (int)$order_id . "'");
+
+			$return_invoice = $this->db->query("SELECT * FROM " . DB_PREFIX . "apsinno_invoice_data 
+		WHERE order_id = " .$order_id)->row;
+
+			return $return_invoice;
+		}
+	
+	}
+   /*
+			]]></add>
+		</operation>	
+
+
+		   <operation>
+			<search ><![CDATA[
+public function getOrderHistories($order_id, $start = 0, $limit = 10) {
+            ]]></search>
+			<add position="before"><![CDATA[
+   */
+			]]></add>
+		</operation>	
+					
+	</file>	
+
+<!-- mobile no check on checkout page -->
+
+<file path="catalog/view/theme/journal3/template/checkout/checkout.twig">
+		
+	
+	     <operation>
+			<search index="0"><![CDATA[
+    $('#button-payment-address').button('loading');
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+                    $.ajax({
+                    url: 'index.php?route=checkout/payment_address/checkmobileno',
+                    type: 'post',
+                    data: $('#collapse-payment-address input[type=\'text\'], #collapse-payment-address input[type=\'date\'], #collapse-payment-address input[type=\'datetime-local\'], #collapse-payment-address input[type=\'time\'], #collapse-payment-address input[type=\'password\'], #collapse-payment-address input[type=\'checkbox\']:checked, #collapse-payment-address input[type=\'radio\']:checked, #collapse-payment-address input[type=\'hidden\'], #collapse-payment-address textarea, #collapse-payment-address select'),
+                    dataType: 'json',
+                    beforeSend: function() {
+                        $('#button-payment-address').button('loading');
+                    },
+                    complete: function() {
+                        $('#button-payment-address').button('reset');
+                    },
+                    success: function(mobile_check) {
+                        console.log(mobile_check);
+                       if( mobile_check['mobile_check'] == '0' ){ 
+                          alert("Please Set Your Mobile Number In Your Address Book");
+                          window.location.href = mobile_check['address_url'];
+                         return;
+                       }
+                    }
+                   
+                });
+
+			]]></add>
+		</operation>	
+
+		    <operation>
+			<search index="0"><![CDATA[
+    $('#button-shipping-address').button('loading');
+            ]]></search>
+			<add position="after"><![CDATA[
+            
+                  $.ajax({
+                    url: 'index.php?route=checkout/payment_address/checkmobileno',
+                    type: 'post',
+                    data: $('#collapse-shipping-address input[type=\'text\'], #collapse-shipping-address input[type=\'date\'], #collapse-shipping-address input[type=\'datetime-local\'], #collapse-shipping-address input[type=\'time\'], #collapse-shipping-address input[type=\'password\'], #collapse-shipping-address input[type=\'checkbox\']:checked, #collapse-shipping-address input[type=\'radio\']:checked, #collapse-shipping-address textarea, #collapse-shipping-address select'),
+                    dataType: 'json',
+                    beforeSend: function() {
+                        $('#button-payment-address').button('loading');
+                    },
+                    complete: function() {
+                        $('#button-payment-address').button('reset');
+                    },
+                    success: function(mobile_check) {
+                        console.log(mobile_check);
+                       if( mobile_check['mobile_check'] == '0' ){ 
+                          alert("Please Set Your Mobile Number In Your Address Book");
+                          window.location.href = mobile_check['address_url'];
+                         return;
+                       }
+                    }
+                   
+                });
+
+			]]></add>
+		</operation>	
+
+
+	
+
+
+		 
+					
+	</file>	
+
+<!-- fix hreg languafe issue on header page -->
+
+
+<file path="catalog/controller/common/header.php">
+		
+	
+	     <operation>
+			<search><![CDATA[
+return $this->load->view('common/header', $data);
+            ]]></search>
+			<add position="before"><![CDATA[
+            	if (!isset($this->request->get['route'])) {
+						foreach($languages as $xlanguage) {
+							$data['alternate'] .='<link rel="alternate" hreflang="'.$xlanguage['code'].'" href="'.HTTP_SERVER.'" />';
+						}
+					}
+
+			]]></add>
+		</operation>	
+
+	
+
+
+		 
+					
+	</file>	
+
+
+<file path="catalog/controller/startup/seo_url.php">
+		
+	
+	     <operation>
+			<search><![CDATA[
+  if ($query->num_rows && $query->row['keyword']) {
+            ]]></search>
+			<add position="replace"><![CDATA[
+            	if ( isset($query->num_rows ) && $query->num_rows && $query->row['keyword']) {
+			]]></add>
+		</operation>	
+		 
+					
+	</file>	
+
+	<!-- implement hsn , sku and image on customer history -->
+
+
+	<file path="catalog/model/account/order.php">
+		
+	
+	     <operation>
+			<search><![CDATA[
+public function getTotalOrderVouchersByOrderId($order_id) {
+            ]]></search>
+			<add position="before"><![CDATA[
+            	//prem@aps
+	public function getSkuHsn($product_id) {
+		$query = $this->db->query("SELECT apef.hsn_or_sac_zoho, p.sku, p.model FROM " . DB_PREFIX . "apsinno_product_extra_fields apef left join " . DB_PREFIX . "product p ON (p.product_id = apef.product_id) WHERE p.product_id = '" . (int)$product_id . "'"); 
+  
+		return $query->rows;
+	  } 
+
+	  public function getProductImage($product_id) {
+		
+		$query = $this->db->query("SELECT p.image FROM " . DB_PREFIX . "product p WHERE product_id = '" . (int)$product_id  . "'");  
+  
+		return $query->rows;
+	  }
+//prem@aps
+
+			]]></add>
+		</operation>	
+		 
+					
+	</file>	
+
+		<file path="catalog/controller/account/order.php">
+		
+	
+	     <operation>
+			<search><![CDATA[
+$data['products'][] = array(
+            ]]></search>
+			<add position="before"><![CDATA[
+            	//prem@aps
+		$proimage_data = array();
+
+				$getProductImages = $this->model_account_order->getProductImage($product['product_id']);  
+				
+				$this->load->model('tool/image');
+	
+				foreach ($getProductImages as $getProductImage) { 
+	
+				  if (is_file(DIR_IMAGE . $getProductImage['image'])) {  
+					$proimage_data = array(
+					  'image' => $this->model_tool_image->resize($getProductImage['image'], $this->config->get('module_aps_extra_field_width'), $this->config->get('module_aps_extra_field_height'))
+					);  
+				  } else { 
+					$proimage_data = array(
+					  'image' => $this->model_tool_image->resize('no_image.png', $this->config->get('module_aps_extra_field_width'), $this->config->get('module_aps_extra_field_height'))
+					); 
+				  } 
+				}
+	
+				$skuhsn_data = array();
+				
+				$getSkuHsns = $this->model_account_order->getSkuHsn($product['product_id']);  
+	
+				foreach ($getSkuHsns as $getSkuHsn) { 
+	
+				  $skuhsn_data = array(
+					'hsn' => $getSkuHsn['hsn_or_sac_zoho'],
+					'sku' => $getSkuHsn['sku'], 
+				  ); 
+				}
+//prem@aps
+
+			]]></add>
+		</operation>	
+
+
+			     <operation>
+			<search><![CDATA[
+$data['products'][] = array(
+            ]]></search>
+			<add position="after"><![CDATA[
+            	//prem@aps
+		'getSkuHsns' 	   => $skuhsn_data,
+					'getProductImages' => $proimage_data,
+//prem@aps
+
+			]]></add>
+		</operation>	
+		 
+					
+	</file>	
+
+
+	<file path="catalog/view/theme/journal3/template/account/order_info.twig">
+		
+	
+	     <operation>
+			<search><![CDATA[
+<td class="text-left">{{ column_name }}</td>
+            ]]></search>
+			<add position="before"><![CDATA[
+              <td class="text-left">Image</td>
+			]]></add>
+		</operation>	
+
+
+		    <operation>
+			<search><![CDATA[
+<td class="text-left">{{ column_model }}</td>
+            ]]></search>
+			<add position="replace"><![CDATA[
+             <td class="text-left">HSN</td>
+              <td class="text-left">SKU</td>
+			]]></add>
+		</operation>	
+
+
+			     <operation>
+			<search><![CDATA[
+<tr class="{{ j3.classes(product.classes) }}">
+            ]]></search>
+			<add position="after"><![CDATA[
+            	 <td class="text-center">
+<img src="{{ product.getProductImages.image }}" class="img-thumbnail">
+</td>
+
+			]]></add>
+		</operation>	
+
+
+		   <operation>
+			<search><![CDATA[
+<td class="text-left">{{ product.model }}</td>
+            ]]></search>
+			<add position="replace"><![CDATA[
+            	   <td class="text-left">{{ product.getSkuHsns.hsn }}</td>
+            <td class="text-left">{{ product.getSkuHsns.sku }}</td>
+
+			]]></add>
+		</operation>	
+
+
+		   <operation>
+			<search><![CDATA[
+	<td colspan="3"></td>
+            ]]></search>
+			<add position="replace"><![CDATA[
+            	 	<td colspan="5"></td>
+			]]></add>
+		</operation>	
+		 
+				
+	</file>	
+
+</modification>
+
+

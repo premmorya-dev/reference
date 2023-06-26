@@ -1,0 +1,89 @@
+{{ header }}{{ column_left }}
+
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <a href="{{ edit }}" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary"><i class="fa fa-pencil"></i> Edit Transaction</a>
+        {# <button type="button" data-toggle="modal" data-target="#addtransaction" class="btn btn-primary"><i class="fa fa-pencil"></i> Edit Transaction</button> #}
+      </div>
+    </div>
+  </div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="transaction-form container-fluid">
+        <div class="transaction-heading">
+          <center>
+            <h1>Transaction Ledger</h1>
+          </center>
+
+          <div class="payment-detail">
+            <div class="row">
+            {{ credit_transactions.payment_html  }}
+             
+            </div>
+          </div>
+        </div>
+
+        <div class="transaction-body">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Ledger Id</th>
+                <th>Description</th>
+                <th>Debit</th>
+                <th>Credit</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if credit_transactions %}
+                <tr>
+                  <td>{{ credit_transactions.ledger_id }}</td>
+                  <td>{{ credit_transactions.description }}</td>
+                  <td></td>
+                  <td>{{ credit_transactions.amount }}</td>
+                </tr>
+              {% endif %}
+              {% if debit_transactions %}
+                {% for debit_transaction in debit_transactions %}
+                  <tr>
+                    <td>{{ debit_transaction.ledger_id }}</td>
+
+                    <td>{{ debit_transaction.description }}</td>
+                    <td>{{ debit_transaction.amount }}</td>
+                    <td></td>
+                  </tr>
+                {% endfor %}
+              {% endif %}
+
+              {# total section #}
+
+              <tr>
+                <td colspan="2">
+                  <div style="margin-left:50%">Total</div>
+                </td>
+                <td>{{ debit_transactions_total }}</td>
+                <td>{{ credit_transactions.amount }}</td>
+              </tr>
+
+              {# total section #}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  .transaction-form {
+    background-color: white;
+  }
+  .transaction-heading {
+    padding: 20px;
+  }
+  .transactions {
+    display: flex;
+    flex-direction: row;
+  }
+</style>
+{{ footer }}

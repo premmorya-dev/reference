@@ -1,0 +1,152 @@
+
+
+<form action="" id="form" method="post">
+<table class="table table-condensed mt-3 tb-style">
+
+  <tr>
+    <td>Transaction Id</td> <td id="id">{{ payment.razorpay_payment_id }}</td>
+  </tr>
+  <tr>
+    <td>Amount</td> <td>{{ payment.amount }}</td>
+  </tr>
+
+  <tr>
+    <td>Status</td> <td>
+      {% if payment.captured == '1' %}
+        <h5  style="margin-top: 5px;" ><span class="label label-success">Captured</span></h5>
+      {% else %}
+        <h5  style="margin-top: 5px;"><span class="label label-danger">Failed</span></h5>
+      {% endif %}
+    </td>
+  </tr>
+
+  <tr>
+    <td>Refunds</td> 
+    <td>
+      {% if payment.amount_refunded == '0' %}
+        No refunds issued yet
+      {% endif %}
+    </td>
+  </tr>
+  <tr>
+    <td>Payment Method</td> <td>{{ payment.method }}</td>
+  </tr>
+
+  <tr>
+    <td>Created At</td> <td>{{ payment.created_at }}</td>
+  </tr>
+
+
+  <tr>
+    <td>Description</td> <td>{{ payment.description }}</td>
+  </tr>
+  <tr>
+    <td>Email</td> <td>{{ payment.email }}</td>
+  </tr>
+   <tr>
+    <td>Customer Id</td> <td>{{ payment.customer_id }}</td>
+  </tr>
+
+
+  <tr>
+    <td>Razorpay Order ID</td> <td>{{ payment.order_id }}</td>
+  </tr>
+
+
+
+  <tr>
+    <td>Opencart Order Id</td> <td>{{ payment.opencart_order_id }}</td>
+  </tr>
+
+
+  <tr class="order_section" style="display:none;">
+    <td>Customer Email </td>     
+    <td><input type="text" name="filter_email" id="input-email" class="form-control"></td>
+
+  </tr>
+
+
+    <tr class="order_section" style="display:none;">
+    <td>Orders </td>     
+    <td>
+          <select name="order_amount" onchange ="orderChange()" id="order_amount" class="form-control" >
+              
+
+          </select>
+    </td>
+
+  </tr>
+
+
+</table>
+<input type="hidden" name="razorpay_payment_id" value="{{ payment.razorpay_payment_id }}">
+<input type="hidden" name="order_id" value="{{ payment.opencart_order_id }}">
+<input type="hidden" name="customer_id" value="{{ payment.customer_id }}">
+<input type="hidden" name="payment_amount_value" value="{{ payment.amount }}">
+<input type="hidden" name="email" id="email" value="{{ payment.email }}">
+<input type="hidden" name="is_order_id_get" id="is_order_id_get" value="{{ payment.opencart_order_id ? 'true': 'false' }}">
+<input type="hidden" name="order_amount_value" id="order_amount_value" value="{{ payment.order_amount_value ? payment.order_amount_value : '0'  }}">
+</form>
+
+
+<script>
+  $('input[name=\'filter_email\']').autocomplete({
+    'source': function(request, response) {
+      $.ajax({
+        url: 'index.php?route=customer/customer/autocomplete&user_token={{ user_token }}&filter_email=' +  encodeURIComponent(request),
+        dataType: 'json',
+        success: function(json) {
+          response($.map(json, function(item) {
+            return {
+              label: item['email'],
+              value: item['customer_id']
+            }
+          }));
+        }
+      });
+    },
+    'select': function(item) {
+      $('input[name=\'filter_email\']').val(item['label']);
+       $('input[name=\'customer_id\']').val(item['value']);
+        $('input[name=\'email\']').val(item['label']);
+
+        $.ajax({
+        url: 'index.php?route=aps_razorpay/aps_razorpay/orderList&user_token={{ user_token }}&email=' +  encodeURIComponent( $('#email').val() ),       
+        dataType:'json',
+        processData: false,
+        contentType: false,
+        type:'post',
+        beforeSend(xhr){
+          var container =  document.getElementById("order_amount");
+          while (container.firstChild) {
+              container.removeChild(container.firstChild);
+            }
+       //  $('#order_amount').val('');
+        },
+        success: function(result){
+                           console.log(result); 
+                          
+                            $('#order_amount').append(result.order_amount);
+                  }
+          });
+
+
+    }
+  });
+
+
+var order_id = '{{ payment.opencart_order_id }}';
+  if( order_id== 0 ){
+   $('.order_section').show();
+  }else{
+    $('.order_section').hide();
+  }
+
+
+function orderChange(){
+  $('input[name=\'order_id\']').val($("#order_amount").find(':selected').val());
+   $('input[name=\'order_amount_value\']').val($("#order_amount").find(':selected').attr('amount'));
+ 
+}
+</script>
+
