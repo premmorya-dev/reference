@@ -2,10 +2,20 @@
 
 // Start the session
 session_start();
-
+date_default_timezone_set('Asia/Kolkata');
 define('VERSION', '3.0.3.8');
-$cron_url = "/home/robomart/web/v3.robomart.com/public_html";
+$cron_url = "/home/robomart/web/robomart.com/public_html";
 $current_directory = getcwd();
+
+$currentTimestamp = time();
+$formattedDateTime = date('Y_m_d-H_i_s', $currentTimestamp);
+ // Create the full file path
+//  $cron_running_start_time = date("d-m-Y") ;
+ $path = $current_directory . '/cron_logs/' . 'zoho_product_regular_sync_and_update-cron-running-log_' . $formattedDateTime  . '.txt';
+ $log_file = fopen($path, "a+") or die("Unable to open file!");
+ $text = "\n cron start time is: " .  date("l jS \of F Y H:i:s A") ;
+ fwrite($log_file, $text );
+ fclose($log_file);
 
 require_once($cron_url . '/config.php');
 require_once(DIR_SYSTEM . 'startup.php');
@@ -46,6 +56,9 @@ if ($config->has('library_autoload')) {
   }
 }
 
+
+
+
 $db = new DB($config->get('db_engine'), $config->get('db_hostname'), $config->get('db_username'), $config->get('db_password'), $config->get('db_database'), $config->get('db_port'));
 
 $registry->set('db', $db);
@@ -64,18 +77,75 @@ foreach ($query->rows as $result) {
   }
 }
 
-$products_data = $db->query("SELECT p.product_id, pef.hsn_or_sac_zoho ,pef.hsn_or_sac_zoho ,pef.initial_stock_rate_zoho  ,pef.inventory_account_id_zoho  ,pef.is_taxable_zoho,pef.item_type_zoho  ,pef.purchase_category ,pef.product_type_zoho  ,pef.sale_account_id_zoho ,pef.purchase_account_id_zoho  ,pef.tax_id_inter_state_zoho,pef.tax_id_intra_state_zoho  ,pef.unit_zoho  ,pef.contry_of_origin_id  ,pef.short_name,pef.short_description  ,zp.zoho_product_id, p.sku, p.image, pd.name, p.model, p.price, p.quantity, zp.last_synchronized_date,zp.last_synchronized_status,p.status
-FROM robomart_v3_zoho_product  zp 
-LEFT JOIN robomart_v3_product p ON (p.product_id = zp.product_id) 
-LEFT JOIN robomart_v3_product_description pd ON (p.product_id = pd.product_id) 
-LEFT JOIN robomart_v3_apsinno_product_extra_fields pef ON (pef.product_id = p.product_id) 
-WHERE pd.language_id = '1' AND (zp.last_synchronized_status = 'pending' OR zp.last_synchronized_status = 'resync-pending') GROUP BY p.product_id ORDER BY p.product_id ASC");
+
+
+
+if( isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] ){
+
+  if( ( strpos( $_SERVER['argv'][1] ,"--product_id=") !== false  )   || ( strpos( $_SERVER['argv'][1] ,"--sku=") !== false  )){
+      $argument = explode("=",$_SERVER['argv'][1] );
+      
+    
+        if( isset($argument[0]) && $argument[0] == '--product_id'   ){
+          if( !isset($argument[1]) || !is_numeric($argument[1] )  ){
+            die("Product id should be numeric value. Please check ");
+          }
+          $products_data = $db->query("SELECT p.product_id,pd.description, pef.hsn_or_sac_zoho ,pef.hsn_or_sac_zoho ,pef.composite_item_zoho ,pef.initial_stock_rate_zoho  ,pef.inventory_account_id_zoho  ,pef.is_taxable_zoho,pef.item_type_zoho  ,pef.purchase_category ,pef.product_type_zoho  ,pef.sale_account_id_zoho ,pef.purchase_account_id_zoho  ,pef.tax_id_inter_state_zoho,pef.tax_id_intra_state_zoho  ,pef.unit_zoho  ,pef.contry_of_origin_id  ,pef.short_name,pef.short_description  ,zp.zoho_product_id, p.sku, p.image, pd.name, p.model, p.price, p.quantity, zp.last_synchronized_date,zp.last_synchronized_status,p.status , pef.zoho_inventory_category_id, pef.warehouse_location_code,pef.product_inventory_status_id
+          FROM robomart_v3_zoho_product  zp 
+          LEFT JOIN robomart_v3_product p ON (p.product_id = zp.product_id) 
+          LEFT JOIN robomart_v3_product_description pd ON (p.product_id = pd.product_id) 
+          LEFT JOIN robomart_v3_apsinno_product_extra_fields pef ON (pef.product_id = p.product_id) 
+          WHERE pd.language_id = '1' AND (p.product_id=".  $argument[1]  .") GROUP BY p.product_id ORDER BY p.product_id ASC");
+
+          if( $products_data->num_rows < 1 ){
+            die("Product id not found. \n");
+          } 
+
+        }else  if( isset($argument[0]) && $argument[0] == '--sku'   ){
+          $products_data = $db->query("SELECT p.product_id,pd.description, pef.hsn_or_sac_zoho ,pef.hsn_or_sac_zoho ,pef.composite_item_zoho ,pef.initial_stock_rate_zoho  ,pef.inventory_account_id_zoho  ,pef.is_taxable_zoho,pef.item_type_zoho  ,pef.purchase_category ,pef.product_type_zoho  ,pef.sale_account_id_zoho ,pef.purchase_account_id_zoho  ,pef.tax_id_inter_state_zoho,pef.tax_id_intra_state_zoho  ,pef.unit_zoho  ,pef.contry_of_origin_id  ,pef.short_name,pef.short_description  ,zp.zoho_product_id, p.sku, p.image, pd.name, p.model, p.price, p.quantity, zp.last_synchronized_date,zp.last_synchronized_status,p.status , pef.zoho_inventory_category_id, pef.warehouse_location_code,pef.product_inventory_status_id
+          FROM robomart_v3_zoho_product  zp 
+          LEFT JOIN robomart_v3_product p ON (p.product_id = zp.product_id) 
+          LEFT JOIN robomart_v3_product_description pd ON (p.product_id = pd.product_id) 
+          LEFT JOIN robomart_v3_apsinno_product_extra_fields pef ON (pef.product_id = p.product_id) 
+          WHERE pd.language_id = '1' AND (p.sku='".  $argument[1]  ."') GROUP BY p.product_id ORDER BY p.product_id ASC");
+
+          if( $products_data->num_rows < 1 ){
+            die("SKU not found. \n");
+          } 
+        }
+  }else{
+    die('Argument Error: Format not recognized. Correct format is : --product_id=value or --sku=value' . "\n");
+  }
+
+ 
+ 
+}else{ 
+        $products_data = $db->query("SELECT p.product_id,pd.description, pef.hsn_or_sac_zoho ,pef.hsn_or_sac_zoho ,pef.composite_item_zoho ,pef.initial_stock_rate_zoho  ,pef.inventory_account_id_zoho  ,pef.is_taxable_zoho,pef.item_type_zoho  ,pef.purchase_category ,pef.product_type_zoho  ,pef.sale_account_id_zoho ,pef.purchase_account_id_zoho  ,pef.tax_id_inter_state_zoho,pef.tax_id_intra_state_zoho  ,pef.unit_zoho  ,pef.contry_of_origin_id  ,pef.short_name,pef.short_description  ,zp.zoho_product_id, p.sku, p.image, pd.name, p.model, p.price, p.quantity, zp.last_synchronized_date,zp.last_synchronized_status,p.status , pef.zoho_inventory_category_id, pef.warehouse_location_code,pef.product_inventory_status_id
+        FROM robomart_v3_zoho_product  zp 
+        LEFT JOIN robomart_v3_product p ON (p.product_id = zp.product_id) 
+        LEFT JOIN robomart_v3_product_description pd ON (p.product_id = pd.product_id) 
+        LEFT JOIN robomart_v3_apsinno_product_extra_fields pef ON (pef.product_id = p.product_id) 
+        WHERE pd.language_id = '1' AND (zp.last_synchronized_status = 'pending' OR zp.last_synchronized_status = 'resync-pending') GROUP BY p.product_id ORDER BY p.product_id ASC");
+
+        if( $products_data->num_rows < 1 ){
+          die("There is no products in cronjob. Please assign products to cronjob to execute. \n");
+        } 
+
+      }
+
+
 
 $products = $products_data->rows;
-// print_r($products);die;
+//  print_r($products);die;
 
 syncProductsToZoho($products, $config, $db, $log);
 echo "\n";
+
+$path = $current_directory . '/cron_logs/' . 'zoho_product_regular_sync_and_update-cron-running-log_' . $formattedDateTime  . '.txt';
+$log_file = fopen($path, "a+") or die("Unable to open file!");
+$text = "\n cron end time is: " .  date("l jS \of F Y H:i:s A") ;
+fwrite($log_file, $text );
+fclose($log_file);
 // print_r($products);die;
 // var_dump($config->get('config_autoload'));die;
 // print_r($products);die;
@@ -86,9 +156,32 @@ function syncProductsToZoho($products, $config, $db, $log)
   $custom_field  =  $db->query("SELECT * FROM " . DB_PREFIX . "apsinno_zoho_custom_field_name_to_field_id")->rows;
   $count = 0;
   // print_r($config->get('module_opc_zoho_domain'));die;
+  
   try {
     if ($products) {
       foreach ($products as $product) {
+           if(!$config->get('module_opc_zoho_composite_product_sync')){
+            if ( isset($product['composite_item_zoho']) && $product['composite_item_zoho'] == 'yes') {
+              date_default_timezone_set('Asia/Kolkata');
+              $dir = dirname(__FILE__);
+          
+              // Create the full file path
+              $path = $dir . '/cron_logs/' . 'zoho_product_regular_sync_and_update-log_' . date("d-m-Y") . '.txt';
+              $log_file = fopen($path, "a+") or die("Unable to open file!");
+          
+            
+              $text = "\n" . date("l jS \of F Y H:i:s A") . " | product_id: " . $product['product_id']. " | status: failed | this is composite product so its cannot be synchronize please check zoho configuration settings for synchronization";
+            
+              print_r("\n product_id: " . $product['product_id']. " | status: failed | this is composite product so its cannot be synchronize please check zoho configuration settings for synchronization");
+
+              fwrite($log_file, $text);
+              fclose($log_file);
+
+              continue;
+             
+            }
+           }
+      
 
         if (!isset($product['short_description'])) {
           $product['short_description'] = '';
@@ -108,11 +201,54 @@ function syncProductsToZoho($products, $config, $db, $log)
         if (!isset($product['purchase_description'])) {
           $product['purchase_description'] = '';
         }
+
+
+
+					if ($product['status'] == 1) {
+						$product_status = 'active';
+					}else{
+						$product_status = 'inactive';
+					}
+					
+					if (isset($product['warehouse_location_code']) && $product['warehouse_location_code']) {
+						$warehouse_code = $product['warehouse_location_code'];
+					}else{
+						$warehouse_code = '';
+					}
+					if (isset($product['product_inventory_status_id']) && $product['product_inventory_status_id'] == '1' ) {
+						$product_inventory_status_id = 'Yes';
+					}else{
+						$product_inventory_status_id = 'No';
+					}
+
+					if (isset($product['zoho_inventory_category_id']) && $product['zoho_inventory_category_id'] ) {
+						$Catagory_id =  $db->query("SELECT zoho_inventory_category_name FROM " . DB_PREFIX . "apsinno_zoho_inventory_category WHERE zoho_inventory_category_id ='". $product['zoho_inventory_category_id'] ."'" )->row;
+					    if(isset($Catagory_id['zoho_inventory_category_name'])){
+							$zoho_catagory_id = $Catagory_id['zoho_inventory_category_name'];
+						}
+					}else{
+						    $zoho_catagory_id = '';
+					}
+
+
+          if(isset($product['description']) && $product['description'] ){
+            $product_description = substr(strip_tags(html_entity_decode($product['description'])), 0, 3599);
+          }else{
+            $product_description = '';
+          }
+
+          if(isset($product['is_taxable_zoho']) && is_null( $product['is_taxable_zoho'] ) ){
+						$is_taxable_zoho = false;
+					  }else{
+						  $is_taxable_zoho = true;
+					  }
+          
+
         $data = array(
           "group_name" => substr($product['name'], 0, 99),
           "product_id" => $product['product_id'],
-
-          "description" => substr(strip_tags(html_entity_decode($product['short_description'])), 0, 6000),
+          "description" =>'',
+          // "description" => substr(strip_tags(html_entity_decode($product['short_description'])), 0, 6000),
           "name" => $product['name'],
           "rate" => $product['price'],
           "sku" => $product['sku'],
@@ -122,7 +258,7 @@ function syncProductsToZoho($products, $config, $db, $log)
           "part_number" => $product['mpn'],
 
 
-          "is_taxable" => $product['is_taxable_zoho'],
+          "is_taxable" => $is_taxable_zoho,
           "unit" => $product['unit_zoho'],
           "item_type" => "inventory",
           "product_type" => $product['product_type_zoho'],
@@ -158,6 +294,7 @@ function syncProductsToZoho($products, $config, $db, $log)
               "customfield_id" => $custom_field[2]['custom_field_api_id_for_zoho'] ,
               "index" => 3,
               "value" =>substr(strip_tags(html_entity_decode($product['short_name'])), 0, 6000)
+             //  "value" =>''
             ],
             [
               "field_id" => $custom_field[3]['custom_field_api_id_for_zoho'] ,
@@ -168,13 +305,50 @@ function syncProductsToZoho($products, $config, $db, $log)
             [
               "field_id" => $custom_field[4]['custom_field_api_id_for_zoho'] ,
               "customfield_id" => $custom_field[4]['custom_field_api_id_for_zoho'] ,
-              "index" => 4,
-              "value" => substr(strip_tags(html_entity_decode($product['short_description'])), 0, 6000)
+              "index" => 5,
+              // "value" => substr(strip_tags(html_entity_decode($product['short_description'])), 0, 6000)
+              "value" =>''
+            ],
+            [
+              "field_id" => $custom_field[5]['custom_field_api_id_for_zoho'] ,
+              "customfield_id" => $custom_field[5]['custom_field_api_id_for_zoho'] ,
+              "index" => 5,
+              "value" =>$product['product_id']
+            ],
+            [
+              "field_id" => $custom_field[6]['custom_field_api_id_for_zoho'] ,
+              "customfield_id" => $custom_field[6]['custom_field_api_id_for_zoho'] ,
+              "index" => 6,
+              "value" => $product_status
+            ],
+            [
+              "field_id" => $custom_field[7]['custom_field_api_id_for_zoho'] ,
+              "customfield_id" => $custom_field[7]['custom_field_api_id_for_zoho'] ,
+              "index" => 7,
+              "value" => $zoho_catagory_id
+            ],
+            [
+              "field_id" => $custom_field[8]['custom_field_api_id_for_zoho'] ,
+              "customfield_id" => $custom_field[8]['custom_field_api_id_for_zoho'] ,
+              "index" => 8,
+              "value" =>	$warehouse_code
+            ],
+            [
+              "field_id" => $custom_field[9]['custom_field_api_id_for_zoho'] ,
+              "customfield_id" => $custom_field[9]['custom_field_api_id_for_zoho'] ,
+              "index" => 9,
+              "value" => $product_inventory_status_id
+            ],
+            [
+              "field_id" => $custom_field[10]['custom_field_api_id_for_zoho'] ,
+              "customfield_id" => $custom_field[10]['custom_field_api_id_for_zoho'] ,
+              "index" => 10,
+              "value" =>''
             ]
             
           ],
-          "purchase_description" => substr(strip_tags(html_entity_decode($product['short_description'])), 0, 2000),
-
+          // "purchase_description" => substr(strip_tags(html_entity_decode($product['short_description'])), 0, 2000),
+          "purchase_description" => '',
         );
 
         $zoho_product = getSyncProduct($product['product_id'], $db);
@@ -201,40 +375,44 @@ function syncProductsToZoho($products, $config, $db, $log)
           $count++;
 
           execute_curl("https://inventory.zoho" . $config->get('module_opc_zoho_domain') . "/api/v1/items/" . $response['item']['item_id'] . "/image", "DELETE", $data, '', $config, $db, $log);
+          if( isset( $product['image'] ) && $product['image'] ){
+            $data = array(
+              'item_id' => $response['item']['item_id'],
+              'image' => new CURLFile(
+                DIR_IMAGE . $product['image'],
+                'application/octet-string'
+              ),
+               );
+               
+              
+               $sql = "SELECT * FROM " . DB_PREFIX . "apsinno_zoho_access_token WHERE timestamp >  SUBTIME(CURRENT_TIMESTAMP(), (Select expires_in from  " . DB_PREFIX . "apsinno_zoho_access_token order by `timestamp` desc limit 1) ) ORDER  BY `timestamp` DESC limit 1";
+  
+               $result = $db->query($sql)->row;
+  
+               if (isset($result['access_token']) && $result['access_token']) {
+                 $curl = curl_init();
+  
+                 curl_setopt_array($curl, array(
+                 CURLOPT_URL => 'https://inventory.zoho' . $config->get("module_opc_zoho_domain") . '/api/v1/items/' . $response['item']['item_id'] . '/images',
+                 CURLOPT_RETURNTRANSFER => true,
+                 CURLOPT_CUSTOMREQUEST => 'POST',
+                 CURLOPT_SSL_VERIFYHOST => false,
+                 CURLOPT_SSL_VERIFYPEER => false,
+                 CURLOPT_POSTFIELDS => $data,
+                   CURLOPT_HTTPHEADER => array(
+                   "Authorization: Zoho-oauthtoken ". $result['access_token'],
+                   ),
+                 ));
+  
+                $image_response =  curl_exec($curl);
+                // $log->write('image_response');
+                // $log->write($image_response);
+                curl_close($curl);
+               }
+          }
 
-          $data = array(
-            'item_id' => $response['item']['item_id'],
-            'image' => new CURLFile(
-              DIR_IMAGE . $product['image'],
-              'application/octet-string'
-            ),
-             );
-             
-            
-             $sql = "SELECT * FROM " . DB_PREFIX . "apsinno_zoho_access_token WHERE timestamp >  SUBTIME(CURRENT_TIMESTAMP(), (Select expires_in from  " . DB_PREFIX . "apsinno_zoho_access_token order by `timestamp` desc limit 1) ) ORDER  BY `timestamp` DESC limit 1";
 
-             $result = $db->query($sql)->row;
-
-             if (isset($result['access_token']) && $result['access_token']) {
-               $curl = curl_init();
-
-               curl_setopt_array($curl, array(
-               CURLOPT_URL => 'https://inventory.zoho' . $config->get("module_opc_zoho_domain") . '/api/v1/items/' . $response['item']['item_id'] . '/images',
-               CURLOPT_RETURNTRANSFER => true,
-               CURLOPT_CUSTOMREQUEST => 'POST',
-               CURLOPT_SSL_VERIFYHOST => false,
-               CURLOPT_SSL_VERIFYPEER => false,
-               CURLOPT_POSTFIELDS => $data,
-                 CURLOPT_HTTPHEADER => array(
-                 "Authorization: Zoho-oauthtoken ". $result['access_token'],
-                 ),
-               ));
-
-              $image_response =  curl_exec($curl);
-              $log->write('image_response');
-              $log->write($image_response);
-              curl_close($curl);
-             }
+        
 
 
         } else {
@@ -273,27 +451,36 @@ function execute_curl($url = '', $method = '', $data = array(), $params = '', $c
     if (isset($result['access_token']) && $result['access_token']) {
       $response = pushProductToZoho($url, $method, $data, $params, $config, $db, $log, $result['access_token']);
       $_SESSION['token'] = $result['access_token'];
-    } else {
+    } else { 
       $new_token = updateAccessToken($config, $log);
 
-      $sql = "INSERT INTO " . DB_PREFIX . "apsinno_zoho_access_token SET access_token ='" . $new_token['access_token'] . "', expires_in='" . $new_token['expires_in'] . "', timestamp = NOW()";
+      if( isset($new_token['access_token']) && $new_token['access_token'] ){
+        $sql = "INSERT INTO " . DB_PREFIX . "apsinno_zoho_access_token SET access_token ='" . $new_token['access_token'] . "', expires_in='" . $new_token['expires_in'] . "', timestamp = NOW()";
 
-      $db->query($sql);
+        $db->query($sql);
 
       $response = pushProductToZoho($url, $method, $data, $params, $config, $db, $log, $new_token['access_token']);
       $_SESSION['token'] = $new_token['access_token'];
+
+      }
+
+     
+
 
     }
 
     if (isset($response['code']) && $response['code'] != 0) {
       $new_token = updateAccessToken($config, $log);
 
-      $sql = "INSERT INTO " . DB_PREFIX . "apsinno_zoho_access_token SET access_token ='" . $new_token['access_token'] . "', expires_in='" . $new_token['expires_in'] . "', timestamp = NOW()";
+      if( isset($new_token['access_token']) && $new_token['access_token'] ){ 
+        $sql = "INSERT INTO " . DB_PREFIX . "apsinno_zoho_access_token SET access_token ='" . $new_token['access_token'] . "', expires_in='" . $new_token['expires_in'] . "', timestamp = NOW()";
 
-      $db->query($sql);
-
-      $response = pushProductToZoho($url, $method, $data, $params, $config, $db, $log, $new_token['access_token']);
-      $_SESSION['token'] = $new_token['access_token'];
+        $db->query($sql);
+  
+        $response = pushProductToZoho($url, $method, $data, $params, $config, $db, $log, $new_token['access_token']);
+        $_SESSION['token'] = $new_token['access_token'];
+      }
+     
 
     }
 
@@ -312,8 +499,22 @@ function execute_curl($url = '', $method = '', $data = array(), $params = '', $c
       $text = "\n" . date("l jS \of F Y H:i:s A") . " | product_id: " . $data['product_id'] . " | zoho_item_id: " . $response['item']['item_id'] . " | request type: " . $request_type . " | status: success | " . $response['message'];
       print_r("\n product_id: " . $data['product_id'] . " | zoho_item_id: " . $response['item']['item_id'] . " | request type: " . $request_type . " | status: success | " . $response['message']);
     } else {
-      $text = "\n" . date("l jS \of F Y H:i:s A") . " | product_id: " . $data['product_id'] . " | zoho_item_id: " . $zoho_product['zoho_product_id'] . " | request type: " . $request_type . " | status: failed | " . $response['message'];
-      print_r("\n product_id: " . $data['product_id'] . " | zoho_item_id: " . $zoho_product['zoho_product_id'] . " | request type: " . $request_type . " | status: failed | " . $response['message']);
+      if($request_type == 'DELETE' ){
+        $text = "\n" . date("l jS \of F Y H:i:s A") . " | product_id: " . $data['product_id'] . " | zoho_item_id: " . $zoho_product['zoho_product_id'] . " | request type: " . $request_type . " | status: success | " . $response['message'];
+        print_r("\n product_id: " . $data['product_id'] . " | zoho_item_id: " . $zoho_product['zoho_product_id'] . " | request type: " . $request_type . " | status: success | " . $response['message']);
+      }else{ 
+       
+
+        if($response['code'] == 1001 ){
+          $text = "\n" . date("l jS \of F Y H:i:s A") . " | product_id: " . $data['product_id'] . " | zoho_item_id: " . $zoho_product['zoho_product_id'] . " | request type: " . $request_type . " | status: failed | " . $response['message'];
+          print_r("\n product_id: " . $data['product_id'] . " | zoho_item_id: " . $zoho_product['zoho_product_id'] . " | request type: " . $request_type . " | status: failed | " . $response['message'] . " Please check the product name or SKU ");
+        }else{
+          $text = "\n" . date("l jS \of F Y H:i:s A") . " | product_id: " . $data['product_id'] . " | zoho_item_id: " . $zoho_product['zoho_product_id'] . " | request type: " . $request_type . " | status: failed | " . $response['message'];
+          print_r("\n product_id: " . $data['product_id'] . " | zoho_item_id: " . $zoho_product['zoho_product_id'] . " | request type: " . $request_type . " | status: failed | " . $response['message'] );
+        }
+       
+      }
+    
     }
 
     date_default_timezone_set('Asia/Kolkata');
@@ -325,6 +526,8 @@ function execute_curl($url = '', $method = '', $data = array(), $params = '', $c
 
     fwrite($log_file, $text);
     fclose($log_file);
+
+    // print_r($response);die;
 
     $log->write("zoho api response:");
     if (isset($response['message'])) {
@@ -352,8 +555,11 @@ function pushProductToZoho($url = '', $method = '', $data = array(), $params = '
   if ($data) {
     $post_data = array(
       'JSONString' => json_encode($data),
+    
     );
-    //   print_r($post_data);die;
+    
+ 
+      // print_r($method);die;
     curl_setopt_array(
       $curl,
       array(
@@ -386,7 +592,7 @@ function pushProductToZoho($url = '', $method = '', $data = array(), $params = '
 
   $response = json_decode(curl_exec($curl), 1);
 
-  //   print_r($response);die;
+    // print_r($response);die;
   $err = curl_error($curl);
   $response['error'] = $err;
   curl_close($curl);

@@ -1,0 +1,9 @@
+#########             Backup              ####
+### Zip & Mysql dump Backup runs every Tuesday at 1.00AM transfered to pbs-01 ####
+0 1 * * tue bash /home/admin/shell_scripts/hestia-debian-daily-backup-pbs-01.sh >/dev/null 2>&1
+### Zip & Mysql dump Backup runs every Thusdayat at 1.00AM transfered to pbs-01 ####
+0 1 * * thu bash /home/admin/shell_scripts/hestia-debian-daily-backup-pbs-01.sh >/dev/null 2>&1
+### Zip & Mysql dump Backup runs every saturday at 1.00AM transfered to pbs-01 ####
+0 1 * * sat bash /home/admin/shell_scripts/hestia-debian-daily-backup-pbs-01.sh >/dev/null 2>&1
+### Zip & Mysql dump Backup runs every sunday at 1.00AM transfered to pbs-03 ####
+0 1 * * sun bash /home/admin/shell_scripts/hestia-debian-daily-backup-pbs-03.sh >/dev/null 2>&1
