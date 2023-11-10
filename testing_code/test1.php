@@ -8,11 +8,11 @@ $threadCount = 3; // Number of threads to process orders concurrently
 // Split the bulk orders into batches for each thread
 $batchSize = ceil(count($bulkOrders) / $threadCount);
 $threadBatches = array_chunk($bulkOrders, $batchSize);
-
+// print_r($threadBatches);die;
 // Create and start threads for processing orders
 $threads = [];
 foreach ($threadBatches as $batch) {
-    $threads[] = new BulkOrderProcessor($batch);
+   // $threads[] = new BulkOrderProcessor($batch);
 }
 
 $urls = [
@@ -33,9 +33,18 @@ $urls = [
 
 // Define a single URL and POST data
 $url = 'https://robomart.com/index.php?route=api/request/method1';
-$postData = [
+
+$postData[0] = [
     'key1' => 'value1',
     'key2' => 'value2',
+];
+$postData[1] = [
+    'key3' => 'value3',
+    'key4' => 'value4',
+];
+$postData[2] = [
+    'key5' => 'value5',
+    'key6' => 'value6',
 ];
 
 // Number of requests to send
@@ -71,7 +80,7 @@ for ($i = 0; $i < $requestCount; $i++) {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $threadBatches[$i]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_multi_add_handle($multiCurl, $ch);
     $curlHandles[] = $ch;
